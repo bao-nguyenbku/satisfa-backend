@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 
@@ -9,11 +9,17 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
+  async validateUser(username: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(username);
-    if (user && user.password === pass) {
+
+    //TODO: Just a sample check
+    const isValidPassword = user && user.password === password;
+    if (user && isValidPassword) {
       const { password, ...result } = user;
       return result;
+    }
+    if (!user) {
+      throw new NotAcceptableException('Could not find this user');
     }
     return null;
   }
