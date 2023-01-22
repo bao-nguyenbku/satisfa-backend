@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { AuthController } from './auth/auth.controller';
     JwtModule,
     MongooseModule.forRoot(process.env.DATABASE_CONNECTION),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, AppController],
 })
 export class AppModule {}
