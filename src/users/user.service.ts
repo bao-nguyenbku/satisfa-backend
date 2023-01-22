@@ -4,6 +4,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user';
 import { User, UserDocument } from '../schemas/user.schema';
+import { HashService } from './hash.service';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +12,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectConnection() private connection: Connection,
     private readonly configService: ConfigService,
+    private readonly hashService: HashService,
   ) {
     if (connection) {
       console.log(
@@ -21,13 +23,23 @@ export class UsersService {
   }
 
   async findByUsername(username: string): Promise<User> {
-    return this.userModel.findOne({ username });
+    return (
+      await this.userModel.findOne({ username: username }).exec()
+    ).toObject();
   }
   async findAllUser(): Promise<User[]> {
     return this.userModel.find();
   }
   async create(createUserDto: CreateUserDto) {
-    const createdUser = new this.userModel(createUserDto);
+    //TODO: Hash password here
+    const hashedPassword = await this.hashService.hashPassword(
+      createUserDto.password,
+    );
+    const newUser = {
+      ...createUserDto,
+      password: hashedPassword,
+    };
+    const createdUser = new this.userModel(newUser);
     return createdUser.save();
   }
 }

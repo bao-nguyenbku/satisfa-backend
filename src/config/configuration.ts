@@ -10,6 +10,7 @@ export default () => ({
       2: 'connecting',
       3: 'disconnecting',
       99: 'uninitialized',
-    }
-  }
-})
+    },
+  },
+  bcryptSaltRounds: 10,
+});
