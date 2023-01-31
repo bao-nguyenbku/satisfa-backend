@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
 import { AppController } from './app.controller';
 import { GatewayModule } from './gateway/gateway.module';
+import { SatisgiModule } from './satisgi/satisgi.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { GatewayModule } from './gateway/gateway.module';
     JwtModule,
     GatewayModule,
     MongooseModule.forRoot(process.env.DATABASE_CONNECTION),
+    SatisgiModule,
   ],
   controllers: [AuthController, AppController],
 })

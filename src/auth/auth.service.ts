@@ -20,8 +20,8 @@ export class AuthService {
   ) {}
 
   async validateUser(user: SigninUserDto): Promise<any> {
-    const { username, password } = user;
-    const existedUser = await this.usersService.findByUsername(username);
+    const { email, password } = user;
+    const existedUser = await this.usersService.findByEmail(email);
     if (!existedUser) {
       throw new NotAcceptableException('Could not find this user');
     }
@@ -38,7 +38,7 @@ export class AuthService {
   }
   async login(user: any) {
     const payload: JwtPayload = {
-      username: user.username,
+      email: user.email,
       id: user._id,
     };
     return {

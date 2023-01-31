@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { SatisgiService } from '~/satisgi/satisgi.service';
 
 @WebSocketGateway({
   cors: true,
@@ -16,6 +17,7 @@ import { Server, Socket } from 'socket.io';
 export class Gateway
   implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  constructor(private readonly satisgiService: SatisgiService) {}
   @WebSocketServer()
   server: Server;
 
@@ -35,10 +37,19 @@ export class Gateway
     client.disconnect();
   }
   @SubscribeMessage('chat')
-  onNewMessage(@MessageBody() body: any, @ConnectedSocket() client: Socket) {
-    this.server.to(client.id).emit('onMessage', {
-      message: body,
-    });
+  async onNewMessage(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.server.to(client.id).emit('typing');
+    const botMessage = await this.satisgiService.getRandomMessage();
+    if (botMessage) {
+      this.server.to(client.id).emit('off-typing');
+      this.server.to(client.id).emit('onMessage', {
+        message: botMessage,
+        user: 'satisgi',
+      });
+    }
   }
 
   @SubscribeMessage('disconnect')
