@@ -14,10 +14,11 @@ import { SatisgiModule } from './satisgi/satisgi.module';
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
+      isGlobal: true,
     }),
+    JwtModule,
     AuthModule,
     UsersModule,
-    JwtModule,
     GatewayModule,
     MongooseModule.forRoot(process.env.DATABASE_CONNECTION),
     SatisgiModule,

@@ -5,17 +5,20 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
-  @Prop()
-  username: string;
-
-  @Prop()
+  @Prop({ required: true })
   fullname: string;
 
-  @Prop()
+  @Prop({ required: true })
   email: string;
 
-  @Prop()
+  @Prop({ required: true })
   password: string;
+
+  @Prop({
+    default:
+      'https://blogchomeo.com/wp-content/uploads/2021/06/nguon-goc-xuat-xu-cho-corgi.jpg',
+  })
+  avatar: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

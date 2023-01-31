@@ -40,6 +40,7 @@ export class AuthController {
       return {
         email: user.email,
         fullname: user.fullname,
+        avatar: user.avatar,
       };
     }
   }
