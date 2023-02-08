@@ -10,17 +10,8 @@ import { HashService } from './hash.service';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectConnection() private connection: Connection,
-    private readonly configService: ConfigService,
     private readonly hashService: HashService,
-  ) {
-    if (connection) {
-      console.log(
-        'Database is ' +
-          configService.get(`database.states[${connection.readyState}]`),
-      );
-    }
-  }
+  ) {}
 
   async findByEmail(email: string): Promise<User> {
     return (await this.userModel.findOne({ email }).exec()).toObject();

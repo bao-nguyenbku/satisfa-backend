@@ -9,6 +9,9 @@ import { AuthController } from './auth/auth.controller';
 import { AppController } from './app.controller';
 import { GatewayModule } from './gateway/gateway.module';
 import { SatisgiModule } from './satisgi/satisgi.module';
+import { ProductModule } from './product/product.module';
+import { UploadController } from './upload/upload.controller';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -22,7 +25,9 @@ import { SatisgiModule } from './satisgi/satisgi.module';
     GatewayModule,
     MongooseModule.forRoot(process.env.DATABASE_CONNECTION),
     SatisgiModule,
+    ProductModule,
+    UploadModule,
   ],
-  controllers: [AuthController, AppController],
+  controllers: [AuthController, AppController, UploadController],
 })
 export class AppModule {}
