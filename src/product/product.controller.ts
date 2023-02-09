@@ -1,6 +1,4 @@
-import { Controller, Get, Post, Body, UseInterceptors } from '@nestjs/common';
-import { UploadedFiles } from '@nestjs/common/decorators';
-import { FileFieldsInterceptor } from '@nestjs/platform-express/multer';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductService } from './product.service';
 

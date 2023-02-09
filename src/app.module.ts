@@ -12,6 +12,8 @@ import { SatisgiModule } from './satisgi/satisgi.module';
 import { ProductModule } from './product/product.module';
 import { UploadController } from './upload/upload.controller';
 import { UploadModule } from './upload/upload.module';
+import { CategoryController } from './category/category.controller';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -27,7 +29,13 @@ import { UploadModule } from './upload/upload.module';
     SatisgiModule,
     ProductModule,
     UploadModule,
+    CategoryModule,
   ],
-  controllers: [AuthController, AppController, UploadController],
+  controllers: [
+    AuthController,
+    AppController,
+    UploadController,
+    CategoryController,
+  ],
 })
 export class AppModule {}
