@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Product, ProductDocument } from '~/schemas/product.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 // import { ConfigService } from '@nestjs/config';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { ProductEntity } from './entities/product.entity';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class ProductService {
       const productData = new this.productModel(createProductData);
       return productData.save();
     } catch (error) {
-      throw new Error(error);
+      throw error;
     }
   }
   async findAll() {
