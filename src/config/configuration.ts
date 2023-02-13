@@ -1,9 +1,9 @@
 // Config Later
 export default () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
+  jwtSecret: process.env.JWT_SECRET_KEY,
+  jwtExpireIn: process.env.JWT_EXPIRES_IN,
   database: {
-    host: process.env.DATABASE_HOST,
-    port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
     states: {
       0: 'disconnected',
       1: 'connected',

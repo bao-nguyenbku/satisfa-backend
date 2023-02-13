@@ -1,9 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Controller()
 export class AppController {
+  constructor(@InjectConnection() connection: Connection) {
+    if (connection) {
+      console.log('DATABASE IS CONNECTED');
+    }
+  }
   @Get('healthcheck')
-  async checkServer() {
-    return 'Server is running';
+  async checkServer(@Req() req: Request, @Res() res: Response) {
+    const fullUrl = `${req.protocol}://${req.get('Host')}${req.originalUrl}`;
+    res.send(`<h2>Server is running at ${fullUrl}</h2>`);
   }
 }

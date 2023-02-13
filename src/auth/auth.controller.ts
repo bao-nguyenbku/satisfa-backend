@@ -34,6 +34,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('auth/me')
   async whoAmI(@Request() req) {
-    return req.user;
+    const { email } = req.user;
+    const user = await this.userService.findByEmail(email);
+    if (user) {
+      return {
+        email: user.email,
+        fullname: user.fullname,
+        avatar: user.avatar,
+      };
+    }
   }
 }

@@ -10,13 +10,13 @@ import { HashService } from './hash.service';
 
 @Module({
   imports: [
+    ConfigModule,
     MongooseModule.forFeature([
       {
         name: User.name,
         schema: UserSchema,
       },
     ]),
-    ConfigModule,
   ],
   providers: [UsersService, HashService],
   exports: [UsersService],

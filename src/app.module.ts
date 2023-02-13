@@ -7,17 +7,35 @@ import { UsersModule } from './users/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
 import { AppController } from './app.controller';
+import { GatewayModule } from './gateway/gateway.module';
+import { SatisgiModule } from './satisgi/satisgi.module';
+import { ProductModule } from './product/product.module';
+import { UploadController } from './upload/upload.controller';
+import { UploadModule } from './upload/upload.module';
+import { CategoryController } from './category/category.controller';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
+      isGlobal: true,
     }),
+    JwtModule,
     AuthModule,
     UsersModule,
-    JwtModule,
+    GatewayModule,
     MongooseModule.forRoot(process.env.DATABASE_CONNECTION),
+    SatisgiModule,
+    ProductModule,
+    UploadModule,
+    CategoryModule,
   ],
-  controllers: [AuthController, AppController],
+  controllers: [
+    AuthController,
+    AppController,
+    UploadController,
+    CategoryController,
+  ],
 })
 export class AppModule {}
