@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseFilters } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { MongoExceptionFilter } from '~/mongo.filter';
 
 @Controller('categories')
 export class CategoryController {
@@ -11,6 +12,7 @@ export class CategoryController {
   }
 
   @Post('/create')
+  @UseFilters(MongoExceptionFilter)
   async createCategory(
     @Body() createCategoryData: CreateCategoryDto[] | CreateCategoryDto,
   ) {
