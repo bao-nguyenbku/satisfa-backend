@@ -7,6 +7,7 @@ import { MongoExceptionFilter } from '~/mongo.filter';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Get()
+  @UseFilters(MongoExceptionFilter)
   async getAllCategory() {
     return this.categoryService.findAll();
   }

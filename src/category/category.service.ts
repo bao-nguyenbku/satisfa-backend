@@ -30,7 +30,11 @@ export class CategoryService {
   async create(createData: CreateCategoryDto) {
     try {
       const createdCategory = new this.categoryModel(createData);
-      return createdCategory.save();
+      const insertedData = (await createdCategory.save()).toObject();
+      return {
+        id: insertedData._id,
+        name: insertedData.name,
+      };
     } catch (error) {
       throw error;
     }

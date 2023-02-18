@@ -16,6 +16,7 @@ export class MongoExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     let statusCode = response.statusCode;
     let message = exception.message;
+    console.log(exception);
     // TODO: Handle Error Response here
     switch (exception.code) {
       case 11000: {
