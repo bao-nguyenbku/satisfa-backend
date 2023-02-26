@@ -2,11 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { User } from './user.schema';
+import { Table } from './table.schema';
 
-export type TableDocument = HydratedDocument<Table>;
+export type ReservatonDocument = HydratedDocument<Reservation>;
 
 @Schema()
-export class Table {
+export class Reservation {
   @Prop({ required: true })
   id: string;
 
@@ -17,23 +18,21 @@ export class Table {
   })
   owner: User;
 
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Table',
+  })
+  table: Table;
+
   @Prop({ required: true })
-  seat: number;
-
-  @Prop({ default: "available" })
-  status: string;
+  from: Date;
 
   @Prop({ required: true })
-  type: string;
-
-  @Prop({ default: "" })
-  from: string;
-
-  @Prop({ required: "" })
-  to: string;
+  to: Date;
 
 
 
 }
 
-export const TableSchema = SchemaFactory.createForClass(Table);
+export const ReservationSchema = SchemaFactory.createForClass(Reservation);

@@ -15,6 +15,7 @@ import { UploadModule } from './upload/upload.module';
 import { CategoryController } from './category/category.controller';
 import { CategoryModule } from './category/category.module';
 import { TableModule } from './table/table.module';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TableModule } from './table/table.module';
     UploadModule,
     TableModule,
     CategoryModule,
+    ReservationModule
   ],
   controllers: [
     AuthController,
