@@ -14,6 +14,7 @@ import { UploadController } from './upload/upload.controller';
 import { UploadModule } from './upload/upload.module';
 import { CategoryController } from './category/category.controller';
 import { CategoryModule } from './category/category.module';
+import { TableModule } from './table/table.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CategoryModule } from './category/category.module';
     SatisgiModule,
     ProductModule,
     UploadModule,
+    TableModule,
     CategoryModule,
   ],
   controllers: [
