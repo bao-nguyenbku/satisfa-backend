@@ -38,12 +38,7 @@ export class ReservationController {
     @Param('id') id: string,
     @Body() updateReservationData: UpdateReservationDto,
   ) {
-    return new Promise<any>((resolve) => {
-      setTimeout(() => {
-        resolve(this.reservationService.update(id, updateReservationData));
-      }, 2000);
-    });
-    // return this.productService.update(id, updateData);
+    return this.reservationService.update(id, updateReservationData);
   }
 
   @Delete(':id')
