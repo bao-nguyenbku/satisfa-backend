@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SigninUserDto } from '~/module/common/users/dto/signin-user';
 import { HashService } from '~/module/common/users/hash.service';
 import { JwtPayload } from './auth.interface';
+import { User } from '../users/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
     private hashService: HashService,
   ) {}
 
-  async validateUser(user: SigninUserDto): Promise<any> {
+  async validateUser(user: SigninUserDto): Promise<Omit<User, 'password'>> {
     const { email, password } = user;
     const existedUser = await this.usersService.findByEmail(email);
     if (!existedUser) {

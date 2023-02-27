@@ -37,12 +37,7 @@ export class ProductController {
     @Body() updateData: UpdateProductDto,
     @Param('id') id: string,
   ) {
-    return new Promise<any>((resolve) => {
-      setTimeout(() => {
-        resolve(this.productService.update(id, updateData));
-      }, 2000);
-    });
-    // return this.productService.update(id, updateData);
+    return this.productService.update(id, updateData);
   }
 
   @Delete('/:id')
