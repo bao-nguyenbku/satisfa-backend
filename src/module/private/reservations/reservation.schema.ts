@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { User } from './user.schema';
-import { Table } from './table.schema';
+import { User } from '~/module/common/users/user.schema';
+import { Table } from '~/module/private/tables/table.schema';
 
 export type ReservatonDocument = HydratedDocument<Reservation>;
 
@@ -30,9 +30,6 @@ export class Reservation {
 
   @Prop({ required: true })
   to: Date;
-
-
-
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);

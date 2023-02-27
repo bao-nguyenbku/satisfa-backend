@@ -1,11 +1,10 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
-import {InjectModel } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateTableDto } from './dto/create-table.dto';
 import mongoose from 'mongoose';
-import { Table, TableDocument } from '../schemas/table.schema';
+import { Table, TableDocument } from '~/module/private/tables/table.schema';
 import { UpdateTableDto } from './dto/update-table.dto';
-
 
 @Injectable()
 export class TableService {
@@ -40,29 +39,27 @@ export class TableService {
 
   async create(createTableData: CreateTableDto) {
     try {
-        const tableData = new this.tableModel(createTableData);
-        return tableData.save()
-    } catch (error){
-        throw error;
+      const tableData = new this.tableModel(createTableData);
+      return tableData.save();
+    } catch (error) {
+      throw error;
     }
   }
 
   async update(id: string, updateTableData: UpdateTableDto) {
     try {
-        const updated = await this.tableModel.updateOne(
-          { _id: id },
-          updateTableData,
-          { runValidators: true },
-        );
-        return updated;
-      } catch (error) {
-        throw error;
-      }
+      const updated = await this.tableModel.updateOne(
+        { _id: id },
+        updateTableData,
+        { runValidators: true },
+      );
+      return updated;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async delete(id: string): Promise<Table> {
     return await this.tableModel.findByIdAndDelete(id).exec();
   }
-
-
 }
