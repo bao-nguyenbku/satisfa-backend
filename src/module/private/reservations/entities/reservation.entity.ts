@@ -11,6 +11,9 @@ export class ReservationEntity {
   table: number;
 
   @ApiProperty()
+  numberOfGuest: number;
+
+  @ApiProperty()
   from: Date;
 
   @ApiProperty()

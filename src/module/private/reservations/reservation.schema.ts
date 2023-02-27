@@ -26,6 +26,10 @@ export class Reservation {
   table: Table;
 
   @Prop({ required: true })
+  numberOfGuest: number;
+
+
+  @Prop({ required: true })
   from: Date;
 
   @Prop({ required: true })
