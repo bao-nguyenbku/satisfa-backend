@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { SatisgiService } from '~/satisgi/satisgi.service';
+import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
 
 @WebSocketGateway({
   cors: true,
