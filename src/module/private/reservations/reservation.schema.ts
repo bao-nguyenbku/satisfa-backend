@@ -8,8 +8,6 @@ export type ReservatonDocument = HydratedDocument<Reservation>;
 
 @Schema()
 export class Reservation {
-  @Prop({ required: true })
-  id: string;
 
   @Prop({
     required: true,

@@ -42,6 +42,7 @@ export class ReservationService {
   }
 
   async create(createReservationData: CreateReservationDto) {
+    // need to check for table id and user id valid or not
     try {
       const reservationData = new this.reservationModel(createReservationData);
       return reservationData.save();
