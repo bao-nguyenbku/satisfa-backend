@@ -8,32 +8,25 @@ export type ReservatonDocument = HydratedDocument<Reservation>;
 
 @Schema()
 export class Reservation {
-  @Prop({ required: true })
-  id: string;
-
   @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   })
-  owner: User;
+  customerId: User;
 
   @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Table',
   })
-  table: Table;
+  tableId: Table;
 
   @Prop({ required: true })
-  numberOfGuest: number;
-
-
-  @Prop({ required: true })
-  from: Date;
+  numberOfGuests: number;
 
   @Prop({ required: true })
-  to: Date;
+  date: Date;
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);

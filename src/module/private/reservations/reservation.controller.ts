@@ -30,7 +30,7 @@ export class ReservationController {
 
   @Post('/create')
   async createReservation(@Body() createReservationData: CreateReservationDto) {
-    return await this.reservationService.create(createReservationData);
+    return this.reservationService.create(createReservationData);
   }
 
   @Patch('/:id')
