@@ -23,9 +23,9 @@ export class UsersService {
       throw error;
     }
   }
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserDataDto[]> {
     try {
-      return this.userModel.find();
+      return this.userModel.find().select(['-password']).lean();
     } catch (error) {
       throw error;
     }

@@ -7,15 +7,24 @@ import {
   UseFilters,
   Patch,
   Delete,
+  UseGuards,
+  Req
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductService } from './product.service';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Roles } from '~/module/common/auth/roles.decorator';
+import { Role } from '~/constants/role.enum';
+import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.USER)
   @Get()
   async getAllProduct() {
     return this.productService.findAll();
