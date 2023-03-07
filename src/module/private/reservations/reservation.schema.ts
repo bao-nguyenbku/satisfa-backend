@@ -14,24 +14,24 @@ export class Reservation {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   })
-  owner: User;
+  customerId: User;
 
   @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Table',
   })
-  table: Table;
+  tableId: Table;
 
   @Prop({ required: true })
   numberOfGuest: number;
 
 
   @Prop({ required: true })
-  from: Date;
+  date: string;
 
-  @Prop({ required: true })
-  to: Date;
+  @Prop({ required: false })
+  note: string;
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);
