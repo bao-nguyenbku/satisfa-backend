@@ -13,7 +13,18 @@ export class TableService {
   ) {}
 
   async findAll(): Promise<Table[]> {
-    return await this.tableModel.find().exec();
+    try {
+      const tableList = await this.tableModel.find().lean();
+      return tableList.map((table) => {
+        const { _id, __v, ...rest } = table;
+        return {
+          id: _id,
+          ...rest,
+        };
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findById(id: string) {
@@ -48,7 +59,7 @@ export class TableService {
 
   async update(id: string, updateTableData: UpdateTableDto) {
     try {
-      console.log(id)
+      console.log(id);
       const updated = await this.tableModel.updateOne(
         { _id: id },
         updateTableData,
@@ -61,6 +72,10 @@ export class TableService {
   }
 
   async delete(id: string): Promise<Table> {
-    return await this.tableModel.findByIdAndDelete(id).exec();
+    try {
+      return this.tableModel.findByIdAndDelete(id).exec();
+    } catch (error) {
+      throw error;
+    }
   }
 }
