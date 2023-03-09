@@ -30,7 +30,7 @@ export class TableService {
         }
         return null;
       } else {
-        throw new NotAcceptableException('This is not a valid id');
+        throw new NotAcceptableException('This is not a valid table id');
       }
     } catch (error) {
       throw error;

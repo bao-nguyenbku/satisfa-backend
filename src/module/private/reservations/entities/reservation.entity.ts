@@ -8,7 +8,7 @@ export class ReservationEntity {
   customerId: string;
 
   @ApiProperty()
-  tableid: number;
+  tableId: string;
 
   @ApiProperty()
   numberOfGuest: number;

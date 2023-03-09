@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from '~/module/common/users/dto/create-user';
 import { User, UserDocument } from '~/module/common/users/user.schema';
 import { HashService } from './hash.service';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +13,26 @@ export class UsersService {
     private readonly hashService: HashService,
   ) {}
 
+  async findById(id: string) {
+    try {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        const user = await this.userModel.findById(id).lean();
+        // TODO Handle case product null;
+        if (user) {
+          const { _id, __v, ...rest } = user;
+          return {
+            id: _id,
+            ...rest,
+          };
+        }
+        return null;
+      } else {
+        throw new NotAcceptableException('This is not a valid id');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   async findByEmail(email: string): Promise<User> {
     return (await this.userModel.findOne({ email }).exec()).toObject();
   }
