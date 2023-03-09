@@ -11,5 +11,5 @@ export class TableEntity {
   seatOfNumber: number;
 
   @ApiProperty()
-  status: boolean;
+  status: string;
 }

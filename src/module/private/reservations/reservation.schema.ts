@@ -8,6 +8,7 @@ export type ReservatonDocument = HydratedDocument<Reservation>;
 
 @Schema()
 export class Reservation {
+
   @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
@@ -26,7 +27,10 @@ export class Reservation {
   numberOfGuests: number;
 
   @Prop({ required: true })
-  date: Date;
+  date: string;
+
+  @Prop({ required: false })
+  note: string;
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);
