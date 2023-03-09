@@ -48,6 +48,7 @@ export class TableService {
 
   async update(id: string, updateTableData: UpdateTableDto) {
     try {
+      console.log(id)
       const updated = await this.tableModel.updateOne(
         { _id: id },
         updateTableData,

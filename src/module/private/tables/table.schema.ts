@@ -15,7 +15,7 @@ export class Table {
   numberOfSeat: number;
 
   @Prop({ required: true })
-  status: boolean;
+  status: "free" | "checkedin" | "reserved";
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);
