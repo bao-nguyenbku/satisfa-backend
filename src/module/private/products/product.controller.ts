@@ -8,7 +8,6 @@ import {
   Patch,
   Delete,
   UseGuards,
-  Req
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductService } from './product.service';
@@ -24,7 +23,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @Get()
   async getAllProduct() {
     return this.productService.findAll();
