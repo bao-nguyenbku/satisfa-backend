@@ -25,6 +25,9 @@ export class Product {
 
   @Prop({ required: true })
   price: number;
+
+  @Prop({ required: true, default: true })
+  visible: boolean;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

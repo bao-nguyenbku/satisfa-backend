@@ -19,6 +19,13 @@ export class User {
       'https://blogchomeo.com/wp-content/uploads/2021/06/nguon-goc-xuat-xu-cho-corgi.jpg',
   })
   avatar: string;
+
+  @Prop({
+    type: String,
+    enum: ['USER', 'ADMIN'],
+    default: 'USER',
+  })
+  role: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
