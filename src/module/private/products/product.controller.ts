@@ -22,13 +22,15 @@ import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.USER, Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.USER, Role.ADMIN)
   @Get()
   async getAllProduct() {
     return this.productService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Post('/create')
   async createProduct(@Body() createProductData: CreateProductDto) {
     return this.productService.createProduct(createProductData);
