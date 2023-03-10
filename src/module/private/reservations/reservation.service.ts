@@ -7,6 +7,7 @@ import {
   Reservation,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
+import { Table, TableDocument } from '~/module/private//tables/table.schema';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 
 Injectable();
@@ -14,6 +15,8 @@ export class ReservationService {
   constructor(
     @InjectModel(Reservation.name)
     private reservationModel: Model<ReservatonDocument>,
+    @InjectModel(Table.name)
+    private tableModel: Model<TableDocument>,
   ) {}
 
   async findAll(): Promise<Reservation[]> {
@@ -42,7 +45,15 @@ export class ReservationService {
   }
 
   async create(createReservationData: CreateReservationDto) {
+    // need to check for table id and user id valid or not
+    const checkTable = await this.tableModel.findById(
+      createReservationData.tableId,
+    );
+
     try {
+      if (!checkTable) {
+        return 'error';
+      }
       const reservationData = new this.reservationModel(createReservationData);
       return reservationData.save();
     } catch (error) {

@@ -19,31 +19,26 @@ export class TableController {
 
   @Get()
   async getAllTable() {
-    return await this.tableService.findAll();
+    return this.tableService.findAll();
   }
 
-  @Get('/:id')
+  @Get(':id')
   @UseFilters(MongoExceptionFilter)
   async getTableById(@Param('id') id: string) {
-    return await this.tableService.findById(id);
+    return this.tableService.findById(id);
   }
 
-  @Post('/create')
+  @Post('create')
   async createTable(@Body() createTableData: CreateTableDto) {
-    return await this.tableService.create(createTableData);
+    return this.tableService.create(createTableData);
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   async updateTable(
     @Param('id') id: string,
     @Body() updateTableData: UpdateTableDto,
   ) {
-    return new Promise<any>((resolve) => {
-      setTimeout(() => {
-        resolve(this.tableService.update(id, updateTableData));
-      }, 2000);
-    });
-    // return this.productService.update(id, updateData);
+    return this.tableService.update(id, updateTableData);
   }
 
   @Delete(':id')

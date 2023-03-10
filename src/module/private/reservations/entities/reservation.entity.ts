@@ -8,14 +8,17 @@ export class ReservationEntity {
   id: mongoose.Schema.Types.ObjectId;
 
   @ApiProperty()
-  owner: UserDataDto;
+  customerId: string;
 
   @ApiProperty()
-  table: TableEntity;
+  tableid: number;
 
   @ApiProperty()
   numberOfGuests: number;
 
   @ApiProperty()
   date: string;
+
+  @ApiProperty()
+  note: string;
 }

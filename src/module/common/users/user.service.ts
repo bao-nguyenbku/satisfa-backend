@@ -23,6 +23,16 @@ export class UsersService {
       throw error;
     }
   }
+  async findById(id: string): Promise<User> {
+    try {
+      const existedUser = await this.userModel.findOne({ _id: id }).exec();
+      if (existedUser) {
+        return existedUser.toObject();
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   async findAll(): Promise<UserDataDto[]> {
     try {
       return this.userModel.find().select(['-password']).lean();

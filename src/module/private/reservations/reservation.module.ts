@@ -7,6 +7,7 @@ import {
 } from '~/module/private/reservations/reservation.schema';
 import { ReservationController } from './reservation.controller';
 import { ConfigModule } from '@nestjs/config';
+import { Table, TableSchema } from '../tables/table.schema';
 
 @Module({
   imports: [
@@ -15,6 +16,10 @@ import { ConfigModule } from '@nestjs/config';
       {
         name: Reservation.name,
         schema: ReservationSchema,
+      },
+      {
+        name: Table.name,
+        schema: TableSchema,
       },
     ]),
   ],

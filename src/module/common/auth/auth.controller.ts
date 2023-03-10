@@ -13,7 +13,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CreateUserDto } from '~/module/common/users/dto/create-user';
 import { UsersService } from '~/module/common/users/user.service';
 
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -21,23 +21,29 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post('auth/login')
+  @Post('login')
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
 
-  @Post('auth/register')
+  @Post('admin/login')
+  @UseGuards(LocalAuthGuard)
+  async adminLogin(@Request() req) {
+    return this.authService.adminLogin(req.user);
+  }
+  @Post('register')
   async register(@Body() createUser: CreateUserDto) {
     return this.userService.create(createUser);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('auth/me')
+  @Get('me')
   async whoAmI(@Request() req) {
-    const { email } = req.user;
-    const user = await this.userService.findByEmail(email);
+    const { id } = req.user;
+    const user = await this.userService.findById(id);
     if (user) {
       return {
+        id,
         email: user.email,
         fullname: user.fullname,
         avatar: user.avatar,
