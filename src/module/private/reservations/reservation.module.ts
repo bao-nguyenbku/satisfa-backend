@@ -8,6 +8,7 @@ import {
 import { ReservationController } from './reservation.controller';
 import { ConfigModule } from '@nestjs/config';
 import { Table, TableSchema } from '../tables/table.schema';
+import { TableService } from '../tables/table.service';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { Table, TableSchema } from '../tables/table.schema';
       },
     ]),
   ],
-  providers: [ReservationService],
+  providers: [ReservationService, TableService],
   controllers: [ReservationController],
 })
 export class ReservationModule {}

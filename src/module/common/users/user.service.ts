@@ -5,6 +5,8 @@ import { CreateUserDto } from '~/module/common/users/dto/create-user';
 import { User, UserDocument } from '~/module/common/users/user.schema';
 import { HashService } from './hash.service';
 import { UserDataDto } from './dto/response-user';
+import { transformResult } from '~/utils';
+import { Role } from '~/constants/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -35,7 +37,11 @@ export class UsersService {
   }
   async findAll(): Promise<UserDataDto[]> {
     try {
-      return this.userModel.find().select(['-password']).lean();
+      const userList = await this.userModel
+        .find({ role: Role.USER })
+        .select(['-password'])
+        .lean();
+      return transformResult(userList) as UserDataDto[];
     } catch (error) {
       throw error;
     }

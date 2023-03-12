@@ -12,10 +12,15 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { ReservationService } from './reservation.service';
+import { TableService } from '../tables/table.service';
+import { TableStatus } from '../tables/table.schema';
 
 @Controller('reservations')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) {}
+  constructor(
+    private readonly reservationService: ReservationService,
+    private readonly tableService: TableService,
+  ) {}
 
   @Get()
   async getAllReservation() {
@@ -30,7 +35,15 @@ export class ReservationController {
 
   @Post('/create')
   async createReservation(@Body() createReservationData: CreateReservationDto) {
-    return this.reservationService.create(createReservationData);
+    const reserved = await this.reservationService.create(
+      createReservationData,
+    );
+    if (reserved) {
+      await this.tableService.update(createReservationData.tableId, {
+        status: TableStatus.RESERVED,
+      });
+      return reserved;
+    }
   }
 
   @Patch('/:id')

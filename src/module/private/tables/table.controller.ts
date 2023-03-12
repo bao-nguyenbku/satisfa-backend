@@ -7,18 +7,27 @@ import {
   Post,
   UseFilters,
   Patch,
+  Query,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CreateTableDto } from './dto/create-table.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { TableService } from './table.service';
+import { TableStatus } from './table.schema';
+import type { TableFilter } from './table.service';
 
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
   @Get()
-  async getAllTable() {
+  async getAllTable(@Query() filter: TableFilter) {
+
+    if (filter) {
+      return this.tableService.findAllByFilter(filter);
+    }
     return this.tableService.findAll();
   }
 
