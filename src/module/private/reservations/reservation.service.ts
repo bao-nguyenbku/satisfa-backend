@@ -1,4 +1,9 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateReservationDto } from './dto/create-reserve.dto';
@@ -7,16 +12,17 @@ import {
   Reservation,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
-import { Table, TableDocument } from '~/module/private//tables/table.schema';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
+import { TableService } from '../tables/table.service';
+import { UsersService } from '~/module/common/users/user.service';
 
 Injectable();
 export class ReservationService {
   constructor(
     @InjectModel(Reservation.name)
     private reservationModel: Model<ReservatonDocument>,
-    @InjectModel(Table.name)
-    private tableModel: Model<TableDocument>,
+    private readonly tableService: TableService,
+    private readonly userService: UsersService,
   ) {}
 
   async findAll(): Promise<Reservation[]> {
@@ -46,13 +52,26 @@ export class ReservationService {
 
   async create(createReservationData: CreateReservationDto) {
     // need to check for table id and user id valid or not
-    const checkTable = await this.tableModel.findById(
+    console.log(createReservationData);
+    const table = await this.tableService.findById(
       createReservationData.tableId,
+    );
+    const user = await this.userService.findById(
+      createReservationData.customerId,
     );
 
     try {
-      if (!checkTable) {
-        return 'error';
+      if (!table) {
+        throw new HttpException('No available table!', HttpStatus.NOT_FOUND);
+      }
+      if (!user) {
+        throw new HttpException('User do not exist!', HttpStatus.NOT_FOUND);
+      }
+      if (table.status != 'free') {
+        throw new HttpException(
+          'Table has been reserved already',
+          HttpStatus.NOT_FOUND,
+        );
       }
       const reservationData = new this.reservationModel(createReservationData);
       return reservationData.save();
