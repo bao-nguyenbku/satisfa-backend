@@ -45,7 +45,8 @@ export class TableService {
     const { status, minSeat } = filter;
     try {
       if (_.isEmpty(filter)) {
-        return;
+        const result = await this.tableModel.find().lean();
+        return transformResult(result);
       }
       if (Object.values(TableStatus).includes(TableStatus[status]) === false) {
         throw new HttpException(

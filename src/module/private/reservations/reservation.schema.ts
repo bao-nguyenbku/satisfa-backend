@@ -8,7 +8,6 @@ export type ReservatonDocument = HydratedDocument<Reservation>;
 
 @Schema()
 export class Reservation {
-
   @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
@@ -34,3 +33,7 @@ export class Reservation {
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);
+
+export type ReservationFilter = {
+  date?: string;
+};
