@@ -10,6 +10,7 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import mongoose from 'mongoose';
 import {
   Reservation,
+  ReservationFilter,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
@@ -24,7 +25,14 @@ export class ReservationService {
     private readonly tableService: TableService,
     private readonly userService: UsersService,
   ) {}
-
+  async findByFilter(filter: ReservationFilter) {
+    const { date } = filter;
+    try {
+      return this.reservationModel.find({ date }).lean();
+    } catch (error) {
+      throw error;
+    }
+  }
   async findAll(): Promise<Reservation[]> {
     return await this.reservationModel.find().exec();
   }
