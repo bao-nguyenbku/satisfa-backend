@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import configuration from '~/config/configuration';
@@ -16,6 +17,7 @@ import { UploadController } from '~/module/private/uploads/upload.controller';
 import { UploadModule } from '~/module/private/uploads/upload.module';
 import { CategoryController } from '~/module/private/categories/category.controller';
 import { CategoryModule } from '~/module/private/categories/category.module';
+import { RolesGuard } from './module/common/auth/guards/roles.guard';
 
 @Module({
   imports: [

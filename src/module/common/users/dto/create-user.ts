@@ -1,6 +1,4 @@
-export class CreateUserDto {
-  username: string;
-  fullname: string;
-  email: string;
-  password: string;
-}
+import { OmitType } from '@nestjs/swagger';
+import { UserDataEntity } from '../entities/user.entity';
+
+export class CreateUserDto extends OmitType(UserDataEntity, ['id']) {}

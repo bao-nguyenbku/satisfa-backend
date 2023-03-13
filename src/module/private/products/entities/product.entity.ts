@@ -18,4 +18,7 @@ export class ProductEntity {
 
   @ApiProperty()
   images: Array<string>;
+
+  @ApiProperty()
+  visible: boolean;
 }

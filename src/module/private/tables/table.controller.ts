@@ -7,43 +7,47 @@ import {
   Post,
   UseFilters,
   Patch,
+  Query,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CreateTableDto } from './dto/create-table.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { TableService } from './table.service';
+import { TableStatus } from './table.schema';
+import type { TableFilter } from './table.service';
 
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
   @Get()
-  async getAllTable() {
-    return await this.tableService.findAll();
+  async getAllTable(@Query() filter: TableFilter) {
+
+    if (filter) {
+      return this.tableService.findAllByFilter(filter);
+    }
+    return this.tableService.findAll();
   }
 
-  @Get('/:id')
+  @Get(':id')
   @UseFilters(MongoExceptionFilter)
   async getTableById(@Param('id') id: string) {
-    return await this.tableService.findById(id);
+    return this.tableService.findById(id);
   }
 
-  @Post('/create')
+  @Post('create')
   async createTable(@Body() createTableData: CreateTableDto) {
-    return await this.tableService.create(createTableData);
+    return this.tableService.create(createTableData);
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   async updateTable(
     @Param('id') id: string,
     @Body() updateTableData: UpdateTableDto,
   ) {
-    return new Promise<any>((resolve) => {
-      setTimeout(() => {
-        resolve(this.tableService.update(id, updateTableData));
-      }, 2000);
-    });
-    // return this.productService.update(id, updateData);
+    return this.tableService.update(id, updateTableData);
   }
 
   @Delete(':id')

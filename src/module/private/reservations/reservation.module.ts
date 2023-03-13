@@ -24,12 +24,14 @@ import { HashService } from '~/module/common/users/hash.service';
       {
         name: Table.name,
         schema: TableSchema,
-      },{
+      },
+      {
         name: User.name,
         schema: UserSchema,
       },
     ]),
   ],
+
   providers: [ReservationService, TableService, UsersService, HashService],
   controllers: [ReservationController],
 })

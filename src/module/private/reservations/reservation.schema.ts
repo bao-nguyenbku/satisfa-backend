@@ -24,8 +24,7 @@ export class Reservation {
   tableId: Table;
 
   @Prop({ required: true })
-  numberOfGuest: number;
-
+  numberOfGuests: number;
 
   @Prop({ required: true })
   date: string;

@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
+import { TableEntity } from '../../tables/entities/table.entity';
+import { UserDataDto } from '~/module/common/users/dto/response-user';
+
 export class ReservationEntity {
   @ApiProperty()
   id: mongoose.Schema.Types.ObjectId;
@@ -11,7 +14,7 @@ export class ReservationEntity {
   tableId: string;
 
   @ApiProperty()
-  numberOfGuest: number;
+  numberOfGuests: number;
 
   @ApiProperty()
   date: string;

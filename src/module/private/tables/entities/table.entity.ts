@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
+import { TableStatus } from '../table.schema';
+
 export class TableEntity {
   @ApiProperty()
   id: mongoose.Schema.Types.ObjectId;
@@ -8,8 +10,8 @@ export class TableEntity {
   code: string;
 
   @ApiProperty()
-  seatOfNumber: number;
+  numberOfSeat: number;
 
   @ApiProperty()
-  status: string;
+  status: TableStatus;
 }

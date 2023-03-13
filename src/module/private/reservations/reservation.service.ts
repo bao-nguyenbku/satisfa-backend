@@ -1,4 +1,9 @@
-import { Injectable, NotAcceptableException, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateReservationDto } from './dto/create-reserve.dto';
@@ -17,7 +22,7 @@ export class ReservationService {
     @InjectModel(Reservation.name)
     private reservationModel: Model<ReservatonDocument>,
     private readonly tableService: TableService,
-    private readonly userService: UsersService
+    private readonly userService: UsersService,
   ) {}
 
   async findAll(): Promise<Reservation[]> {
@@ -47,19 +52,26 @@ export class ReservationService {
 
   async create(createReservationData: CreateReservationDto) {
     // need to check for table id and user id valid or not
-    console.log(createReservationData)
-    const table = await this.tableService.findById(createReservationData.tableId)
-    const user = await this.userService.findById(createReservationData.customerId)
+    console.log(createReservationData);
+    const table = await this.tableService.findById(
+      createReservationData.tableId,
+    );
+    const user = await this.userService.findById(
+      createReservationData.customerId,
+    );
 
     try {
-      if ( !table){
+      if (!table) {
         throw new HttpException('No available table!', HttpStatus.NOT_FOUND);
       }
-      if ( !user){
+      if (!user) {
         throw new HttpException('User do not exist!', HttpStatus.NOT_FOUND);
       }
-      if (table.status != "free"){
-        throw new HttpException('Table has been reserved already', HttpStatus.NOT_FOUND);
+      if (table.status != 'free') {
+        throw new HttpException(
+          'Table has been reserved already',
+          HttpStatus.NOT_FOUND,
+        );
       }
       const reservationData = new this.reservationModel(createReservationData);
       return reservationData.save();

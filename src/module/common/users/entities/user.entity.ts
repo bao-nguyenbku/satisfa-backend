@@ -1,18 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
+import mongoose from 'mongoose';
+import { Role } from '~/constants/role.enum';
 
 export class UserDataEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true })
   id: string;
 
-  @ApiProperty()
-  username: string;
-
-  @ApiProperty()
+  @ApiProperty({ required: true })
   fullname: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   email: string;
+
+  @ApiProperty({ required: true })
+  role: Role;
 }
