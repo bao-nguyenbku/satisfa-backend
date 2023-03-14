@@ -16,6 +16,7 @@ import {
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
+import { TableStatus } from '../tables/table.schema';
 
 Injectable();
 export class ReservationService {
@@ -75,7 +76,7 @@ export class ReservationService {
       if (!user) {
         throw new HttpException('User do not exist!', HttpStatus.NOT_FOUND);
       }
-      if (table.status != 'free') {
+      if (table.status != TableStatus.FREE) {
         throw new HttpException(
           'Table has been reserved already',
           HttpStatus.NOT_FOUND,

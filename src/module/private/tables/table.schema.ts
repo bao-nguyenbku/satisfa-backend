@@ -16,7 +16,7 @@ export class Table {
   numberOfSeat: number;
 
   @Prop({ required: false, enum: TableStatus, default: TableStatus.FREE })
-  status: string;
+  status: TableStatus;
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);
