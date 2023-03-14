@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import * as _ from 'lodash';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateReservationDto } from './dto/create-reserve.dto';
@@ -26,9 +27,19 @@ export class ReservationService {
     private readonly userService: UsersService,
   ) {}
   async findByFilter(filter: ReservationFilter) {
-    const { date } = filter;
     try {
+      if (_.isEmpty(filter)) {
+        return this.reservationModel.find().lean();
+      }
+      const { date } = filter;
       return this.reservationModel.find({ date }).lean();
+      // return this.reservationModel.aggregate([
+      //   {
+      //     $group: {
+      //       _id: '$tableId',
+      //     },
+      //   },
+      // ]);
     } catch (error) {
       throw error;
     }

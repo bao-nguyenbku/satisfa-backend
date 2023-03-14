@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateTableDto } from './dto/create-table.dto';
+import * as _ from 'lodash';
 import mongoose from 'mongoose';
 import {
   Table,
@@ -15,7 +16,6 @@ import {
 } from '~/module/private/tables/table.schema';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { transformResult } from '~/utils';
-import * as _ from 'lodash';
 
 export type TableFilter = {
   status: string;
@@ -96,7 +96,6 @@ export class TableService {
 
   async update(id: string, updateTableData: UpdateTableDto) {
     try {
-      console.log(id);
       const updated = await this.tableModel.updateOne(
         { _id: id },
         updateTableData,
