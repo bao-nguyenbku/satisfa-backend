@@ -17,6 +17,8 @@ import {
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
+import { transformResult } from '~/utils';
+import { TableStatus } from '../tables/table.schema';
 
 Injectable();
 export class ReservationService {
@@ -29,23 +31,19 @@ export class ReservationService {
   async findByFilter(filter: ReservationFilter) {
     try {
       if (_.isEmpty(filter)) {
-        return this.reservationModel.find().lean();
+        const result = await this.reservationModel
+          .find()
+          .populate('tableId')
+          .populate('customerId', 'fullname')
+          .lean();
+        return transformResult(result);
       }
       const { date } = filter;
-      return this.reservationModel.find({ date }).lean();
-      // return this.reservationModel.aggregate([
-      //   {
-      //     $group: {
-      //       _id: '$tableId',
-      //     },
-      //   },
-      // ]);
+      const result = await this.reservationModel.find({ date }).lean();
+      return transformResult(result);
     } catch (error) {
       throw error;
     }
-  }
-  async findAll(): Promise<Reservation[]> {
-    return await this.reservationModel.find().exec();
   }
 
   async findById(id: string) {
@@ -71,7 +69,6 @@ export class ReservationService {
 
   async create(createReservationData: CreateReservationDto) {
     // need to check for table id and user id valid or not
-    console.log(createReservationData);
     const table = await this.tableService.findById(
       createReservationData.tableId,
     );
@@ -86,7 +83,7 @@ export class ReservationService {
       if (!user) {
         throw new HttpException('User do not exist!', HttpStatus.NOT_FOUND);
       }
-      if (table.status != 'free') {
+      if (table.status != TableStatus.FREE) {
         throw new HttpException(
           'Table has been reserved already',
           HttpStatus.NOT_FOUND,
