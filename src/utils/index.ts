@@ -17,6 +17,7 @@ export function transformResult<T>(values: T): T {
           ...cloneItem,
         };
       }
+      return item;
     }) as T;
   }
   if (

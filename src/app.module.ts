@@ -13,6 +13,7 @@ import { ProductModule } from '~/module/private/products/product.module';
 import { UploadModule } from '~/module/private/uploads/upload.module';
 import { CategoryModule } from '~/module/private/categories/category.module';
 import { OrdersModule } from './module/private/orders/orders.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -33,5 +34,6 @@ import { OrdersModule } from './module/private/orders/orders.module';
     ReservationModule,
     OrdersModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
