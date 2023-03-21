@@ -25,11 +25,6 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   @UseFilters(MongoExceptionFilter)
   async createOrder(@Body() createOrderData: any) {
-    console.log(
-      '🚀 ~ file: orders.controller.ts:10 ~ OrdersController ~ createOrder ~ createOrderData:',
-      createOrderData,
-    );
-
     return this.orderService.create(createOrderData);
   }
 }

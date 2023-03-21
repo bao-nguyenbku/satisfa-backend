@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Reservation } from '../reservations/reservation.schema';
 
 export type TableDocument = HydratedDocument<Table>;
 export enum TableStatus {
@@ -9,14 +10,20 @@ export enum TableStatus {
 }
 @Schema()
 export class Table {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   code: string;
 
   @Prop({ required: true })
   numberOfSeat: number;
 
-  @Prop({ required: false, enum: TableStatus, default: TableStatus.FREE })
-  status: string;
+  @Prop([
+    {
+      required: false,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Reservation',
+    },
+  ])
+  reservations: Reservation[];
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);

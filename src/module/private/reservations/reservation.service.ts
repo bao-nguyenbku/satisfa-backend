@@ -81,16 +81,18 @@ export class ReservationService {
         throw new HttpException('No available table!', HttpStatus.NOT_FOUND);
       }
       if (!user) {
-        throw new HttpException('User do not exist!', HttpStatus.NOT_FOUND);
+        throw new HttpException('User does not exist!', HttpStatus.NOT_FOUND);
       }
-      if (table.status != TableStatus.FREE) {
-        throw new HttpException(
-          'Table has been reserved already',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      const reservationData = new this.reservationModel(createReservationData);
-      return reservationData.save();
+      const checkingTable = await this.tableService.findById(
+        createReservationData.tableId,
+      );
+      console.log(
+        '🚀 ~ file: reservation.service.ts:89 ~ ReservationService ~ create ~ checkingTable:',
+        checkingTable,
+      );
+      return null;
+      // const reservationData = new this.reservationModel(createReservationData);
+      // return reservationData.save();
     } catch (error) {
       throw error;
     }

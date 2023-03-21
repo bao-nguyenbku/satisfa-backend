@@ -4,8 +4,8 @@ export function transformResult<T>(values: T): T {
   if (_.isArray(values)) {
     return values.map((item) => {
       if (
-        (_.isObject(item) && item.hasOwnProperty('_id')) ||
-        item.hasOwnProperty('__v')
+        (_.isPlainObject(item) && item?.hasOwnProperty('_id')) ||
+        item?.hasOwnProperty('__v')
       ) {
         const cloneItem = _.omit(item, ['_id', '__v']);
         for (const subItem in cloneItem) {
@@ -21,10 +21,13 @@ export function transformResult<T>(values: T): T {
     }) as T;
   }
   if (
-    (_.isObject(values) && values.hasOwnProperty('_id')) ||
-    values.hasOwnProperty('__v')
+    (_.isPlainObject(values) && values?.hasOwnProperty('_id')) ||
+    values?.hasOwnProperty('__v')
   ) {
-    const cloneValues = _.omit(values as object, ['_id', '__v']);
+    const cloneValues = _.omit(values as any, ['_id', '__v']);
+    for (const subItem in cloneValues) {
+      cloneValues[subItem] = transformResult(cloneValues[subItem]);
+    }
     return {
       id: values['_id'],
       ...cloneValues,

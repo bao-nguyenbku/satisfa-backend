@@ -8,6 +8,7 @@ import { HashService } from './hash.service';
 import { UserDataDto } from './dto/response-user';
 import { transformResult } from '~/utils';
 import { Role } from '~/constants/role.enum';
+import * as _ from 'lodash';
 
 @Injectable()
 export class UsersService {
@@ -72,7 +73,11 @@ export class UsersService {
         password: hashedPassword,
       };
       const createdUser = new this.userModel(newUser);
-      return createdUser.save();
+      return createdUser
+        .save()
+        .then((result) =>
+          _.omit(result.toObject(), ['_id', '__v', 'role', 'password']),
+        );
     } catch (error) {
       throw error;
     }
