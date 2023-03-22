@@ -7,16 +7,26 @@ export enum TableStatus {
   CHECKED_IN = 'CHECKED_IN',
   RESERVED = 'RESERVED',
 }
-@Schema()
+@Schema({
+  timestamps: {
+    createdAt: 'createdAt',
+    updatedAt: 'lastUpdate',
+  }})
 export class Table {
   @Prop({ required: true })
   code: string;
 
   @Prop({ required: true })
-  numberOfSeat: number;
+  numberOfSeats: number;
 
   @Prop({ required: false, enum: TableStatus, default: TableStatus.FREE })
-  status: string;
+  status: TableStatus;
+
+  @Prop()
+  createdAt: string;
+
+  @Prop()
+  lastUpdate: string;
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);

@@ -1,10 +1,13 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateUserDto } from '~/module/common/users/dto/create-user';
 import { User, UserDocument } from '~/module/common/users/user.schema';
 import { HashService } from './hash.service';
+
 import { UserDataDto } from './dto/response-user';
+import { transformResult } from '~/utils';
+import { Role } from '~/constants/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +16,26 @@ export class UsersService {
     private readonly hashService: HashService,
   ) {}
 
+  async findById(id: string) {
+    try {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        const user = await this.userModel.findById(id).lean();
+        // TODO Handle case product null;
+        if (user) {
+          const { _id, __v, ...rest } = user;
+          return {
+            id: _id,
+            ...rest,
+          };
+        }
+        return null;
+      } else {
+        throw new NotAcceptableException('This is not a valid id');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   async findByEmail(email: string): Promise<User> {
     try {
       const existedEmail = await this.userModel.findOne({ email }).exec();
@@ -23,19 +46,14 @@ export class UsersService {
       throw error;
     }
   }
-  async findById(id: string): Promise<User> {
-    try {
-      const existedUser = await this.userModel.findOne({ _id: id }).exec();
-      if (existedUser) {
-        return existedUser.toObject();
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
+
   async findAll(): Promise<UserDataDto[]> {
     try {
-      return this.userModel.find().select(['-password']).lean();
+      const userList = await this.userModel
+        .find({ role: Role.USER })
+        .select(['-password'])
+        .lean();
+      return transformResult(userList) as UserDataDto[];
     } catch (error) {
       throw error;
     }

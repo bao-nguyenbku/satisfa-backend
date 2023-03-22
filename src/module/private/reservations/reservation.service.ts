@@ -1,24 +1,39 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateReservationDto } from './dto/create-reserve.dto';
 import mongoose from 'mongoose';
 import {
   Reservation,
+  ReservationFilter,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
-import { Table, TableDocument } from '~/module/private//tables/table.schema';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
+import { TableService } from '../tables/table.service';
+import { UsersService } from '~/module/common/users/user.service';
+import { TableStatus } from '../tables/table.schema';
 
 Injectable();
 export class ReservationService {
   constructor(
     @InjectModel(Reservation.name)
     private reservationModel: Model<ReservatonDocument>,
-    @InjectModel(Table.name)
-    private tableModel: Model<TableDocument>,
+    private readonly tableService: TableService,
+    private readonly userService: UsersService,
   ) {}
-
+  async findByFilter(filter: ReservationFilter) {
+    const { date } = filter;
+    try {
+      return this.reservationModel.find({ date }).lean();
+    } catch (error) {
+      throw error;
+    }
+  }
   async findAll(): Promise<Reservation[]> {
     return await this.reservationModel.find().exec();
   }
@@ -46,13 +61,26 @@ export class ReservationService {
 
   async create(createReservationData: CreateReservationDto) {
     // need to check for table id and user id valid or not
-    const checkTable = await this.tableModel.findById(
+    console.log(createReservationData);
+    const table = await this.tableService.findById(
       createReservationData.tableId,
+    );
+    const user = await this.userService.findById(
+      createReservationData.customerId,
     );
 
     try {
-      if (!checkTable) {
-        return 'error';
+      if (!table) {
+        throw new HttpException('No available table!', HttpStatus.NOT_FOUND);
+      }
+      if (!user) {
+        throw new HttpException('User do not exist!', HttpStatus.NOT_FOUND);
+      }
+      if (table.status != TableStatus.FREE) {
+        throw new HttpException(
+          'Table has been reserved already',
+          HttpStatus.NOT_FOUND,
+        );
       }
       const reservationData = new this.reservationModel(createReservationData);
       return reservationData.save();

@@ -4,11 +4,13 @@ import {
   UploadedFile,
   UseInterceptors,
   Get,
+  Delete,
   Param,
   Res,
   Req,
+  HttpStatus,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'fs';
 import { diskStorage } from 'multer';
@@ -46,7 +48,7 @@ export class UploadController {
     throw new BadRequestException('This is invalid file! Try again');
   }
 
-  @Get('/:fileId')
+  @Get(':fileId')
   getFile(@Param('fileId') fileId: string, @Res() res) {
     const filePath = join(process.cwd(), `/uploads/${fileId}`);
     if (fs.existsSync(filePath)) {
@@ -55,5 +57,28 @@ export class UploadController {
     } else {
       throw new NotFoundException('The file is not existed');
     }
+  }
+
+  @Delete(':fileId')
+  deleteFile(
+    @Param('fileId') fileId: string,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    fs.unlink(`${process.cwd()}/uploads/${fileId}`, (err) => {
+      if (err) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          statusCode: HttpStatus.BAD_REQUEST,
+          path: req.url,
+          type: 'error',
+          message: err,
+        });
+        return;
+      }
+      res.status(HttpStatus.CREATED).json({
+        statusCode: HttpStatus.CREATED,
+        message: 'This file is deleted',
+      });
+    });
   }
 }

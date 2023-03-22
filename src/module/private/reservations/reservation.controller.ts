@@ -7,33 +7,49 @@ import {
   Post,
   UseFilters,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reserve.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { ReservationService } from './reservation.service';
+import { TableService } from '../tables/table.service';
+import { TableStatus } from '../tables/table.schema';
+import { ReservationFilter } from './reservation.schema';
 
 @Controller('reservations')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) {}
+  constructor(
+    private readonly reservationService: ReservationService,
+    private readonly tableService: TableService,
+  ) {}
 
   @Get()
-  async getAllReservation() {
-    return await this.reservationService.findAll();
+  @UseFilters(MongoExceptionFilter)
+  async getAllReservationByFilter(@Query() filter: ReservationFilter) {
+    return this.reservationService.findByFilter(filter);
   }
 
-  @Get('/:id')
+  @Get(':id')
   @UseFilters(MongoExceptionFilter)
   async getTableById(@Param('id') id: string) {
     return await this.reservationService.findById(id);
   }
 
-  @Post('/create')
+  @Post('create')
   async createReservation(@Body() createReservationData: CreateReservationDto) {
-    return this.reservationService.create(createReservationData);
+    const reserved = await this.reservationService.create(
+      createReservationData,
+    );
+    if (reserved) {
+      await this.tableService.update(createReservationData.tableId, {
+        status: TableStatus.RESERVED,
+      });
+      return reserved;
+    }
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   async updateTable(
     @Param('id') id: string,
     @Body() updateReservationData: UpdateReservationDto,

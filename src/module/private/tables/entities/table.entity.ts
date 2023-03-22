@@ -10,7 +10,7 @@ export class TableEntity {
   code: string;
 
   @ApiProperty()
-  numberOfSeat: number;
+  numberOfSeats: number;
 
   @ApiProperty()
   status: TableStatus;

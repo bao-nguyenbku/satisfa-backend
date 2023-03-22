@@ -4,7 +4,7 @@ import { Role } from '~/constants/role.enum';
 
 export class UserDataEntity {
   @ApiProperty({ required: true })
-  _id: mongoose.Types.ObjectId;
+  id: string;
 
   @ApiProperty({ required: true })
   fullname: string;
