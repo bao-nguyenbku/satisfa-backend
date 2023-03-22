@@ -57,7 +57,7 @@ export class TableService {
       const result = await this.tableModel
         .find({
           status,
-          numberOfSeat: {
+          numberOfSeats: {
             $gt: minSeat,
           },
         })
