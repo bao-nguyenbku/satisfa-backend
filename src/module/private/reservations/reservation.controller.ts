@@ -38,15 +38,7 @@ export class ReservationController {
 
   @Post('create')
   async createReservation(@Body() createReservationData: CreateReservationDto) {
-    const reserved = await this.reservationService.create(
-      createReservationData,
-    );
-    if (reserved) {
-      await this.tableService.update(createReservationData.tableId, {
-        status: TableStatus.RESERVED,
-      });
-      return reserved;
-    }
+    return this.reservationService.create(createReservationData);
   }
 
   @Patch(':id')
@@ -57,8 +49,8 @@ export class ReservationController {
     return this.reservationService.update(id, updateReservationData);
   }
 
-  @Delete(':id')
-  async delete(@Param('id') id: string) {
-    return await this.reservationService.delete(id);
+  @Delete(':id/:tableId')
+  async delete(@Param('id') id: string, @Param('tableId') tableId: string) {
+    return this.reservationService.delete(id, tableId);
   }
 }

@@ -33,6 +33,7 @@
     "@nestjs/websockets": "^9.2.1",
     "@types/passport-local": "^1.0.35",
     "bcrypt": "^5.1.0",
+    "dayjs": "^1.11.7",
     "lodash": "^4.17.21",
     "mongoose": "^6.2.2",
     "passport": "^0.6.0",

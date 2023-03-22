@@ -18,7 +18,10 @@ import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
 import { transformResult } from '~/utils';
-import { TableStatus } from '../tables/table.schema';
+// import { TableStatus } from '../tables/table.schema';
+// import { ReservationEntity } from './entities/reservation.entity';
+// import duration from 'dayjs/plugin/duration';
+import * as dayjs from 'dayjs';
 
 Injectable();
 export class ReservationService {
@@ -66,38 +69,99 @@ export class ReservationService {
       throw error;
     }
   }
-
-  async create(createReservationData: CreateReservationDto) {
-    // need to check for table id and user id valid or not
-    const table = await this.tableService.findById(
-      createReservationData.tableId,
-    );
-    const user = await this.userService.findById(
-      createReservationData.customerId,
-    );
-
+  async noValidateCreate(createReservationData: CreateReservationDto) {
     try {
-      if (!table) {
+      const newReservation = new this.reservationModel(createReservationData);
+      return newReservation.save();
+    } catch (error) {
+      throw error;
+    }
+  }
+  async create(createReservationData: CreateReservationDto) {
+    try {
+      // Need to check for table id and user id valid or not
+      const checkingTable = await this.tableService.findOriginalById(
+        createReservationData.tableId,
+      );
+      const user = await this.userService.findById(
+        createReservationData.customerId,
+      );
+
+      if (!checkingTable) {
         throw new HttpException('No available table!', HttpStatus.NOT_FOUND);
       }
       if (!user) {
         throw new HttpException('User does not exist!', HttpStatus.NOT_FOUND);
       }
-      const checkingTable = await this.tableService.findById(
-        createReservationData.tableId,
+      let reservations: mongoose.LeanDocument<Reservation>[];
+      let isAvailable = false;
+      if (_.isEmpty(checkingTable.reservations)) {
+        const createdReservation = await this.noValidateCreate(
+          createReservationData,
+        );
+        isAvailable = true;
+        console.log('Empty');
+        reservations = [...checkingTable.reservations, createdReservation];
+      }
+      if (
+        dayjs(createReservationData.date).diff(
+          dayjs(checkingTable.reservations[0].date),
+          'second',
+        ) <= 3600
+      ) {
+        console.log('Smaller than');
+        const createdReservation = await this.noValidateCreate(
+          createReservationData,
+        );
+        isAvailable = true;
+        reservations = [createdReservation, ...checkingTable.reservations];
+      } else if (
+        dayjs(createReservationData.date).diff(
+          dayjs(
+            checkingTable.reservations[checkingTable.reservations.length - 1]
+              .date,
+          ),
+          'second',
+        ) >= 7200
+      ) {
+        console.log('Greater than');
+        const createdReservation = await this.noValidateCreate(
+          createReservationData,
+        );
+        isAvailable = true;
+        reservations = [...checkingTable.reservations, createdReservation];
+      } else {
+        for (let idx = 0; idx < checkingTable.reservations.length - 1; idx++) {
+          if (
+            dayjs(checkingTable.reservations[idx].date).diff(
+              dayjs(createReservationData.date),
+              'second',
+            ) < 3600 &&
+            dayjs(checkingTable.reservations[idx + 1].date).diff(
+              dayjs(createReservationData.date),
+              'second',
+            ) > 7200
+          ) {
+            console.log('Between');
+            isAvailable = true;
+            reservations = [...checkingTable.reservations];
+            reservations.splice(idx + 1, 0, createReservationData as any);
+          }
+        }
+      }
+      if (isAvailable) {
+        return this.tableService.update(createReservationData.tableId, {
+          reservations: reservations as any,
+        });
+      }
+      throw new HttpException(
+        'Can not make new reservation because this table was busy',
+        HttpStatus.UNPROCESSABLE_ENTITY,
       );
-      console.log(
-        '🚀 ~ file: reservation.service.ts:89 ~ ReservationService ~ create ~ checkingTable:',
-        checkingTable,
-      );
-      return null;
-      // const reservationData = new this.reservationModel(createReservationData);
-      // return reservationData.save();
     } catch (error) {
       throw error;
     }
   }
-
   async update(id: string, updateReservationData: UpdateReservationDto) {
     try {
       const updated = await this.reservationModel.updateOne(
@@ -111,7 +175,24 @@ export class ReservationService {
     }
   }
 
-  async delete(id: string): Promise<Reservation> {
-    return await this.reservationModel.findByIdAndDelete(id).exec();
+  async delete(id: string, tableId: string) {
+    try {
+      const deleted = await this.tableService.deleteReservationById(
+        tableId,
+        id,
+      );
+      if (deleted) {
+        const deletedReservation = await this.reservationModel
+          .findByIdAndDelete(id)
+          .lean();
+        return transformResult(deletedReservation);
+      }
+      throw new HttpException(
+        'Some thing went wrong while delete reservation',
+        HttpStatus.BAD_REQUEST,
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 }

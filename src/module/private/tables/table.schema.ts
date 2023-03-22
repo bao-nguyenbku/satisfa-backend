@@ -23,7 +23,7 @@ export class Table {
       ref: 'Reservation',
     },
   ])
-  reservations: Reservation[];
+  reservations: (Reservation & { _id: mongoose.Schema.Types.ObjectId })[];
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);
