@@ -18,6 +18,7 @@ import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
 import { transformResult } from '~/utils';
+import { GAP_BETWEEN_RESERVATIONS } from '~/constants';
 // import { TableStatus } from '../tables/table.schema';
 // import { ReservationEntity } from './entities/reservation.entity';
 // import duration from 'dayjs/plugin/duration';
@@ -107,7 +108,7 @@ export class ReservationService {
         dayjs(createReservationData.date).diff(
           dayjs(checkingTable.reservations[0].date),
           'second',
-        ) <= 3600
+        ) <= GAP_BETWEEN_RESERVATIONS
       ) {
         console.log('Smaller than');
         const createdReservation = await this.noValidateCreate(
@@ -122,7 +123,7 @@ export class ReservationService {
               .date,
           ),
           'second',
-        ) >= 7200
+        ) >= GAP_BETWEEN_RESERVATIONS
       ) {
         console.log('Greater than');
         const createdReservation = await this.noValidateCreate(
@@ -136,11 +137,11 @@ export class ReservationService {
             dayjs(checkingTable.reservations[idx].date).diff(
               dayjs(createReservationData.date),
               'second',
-            ) < 3600 &&
+            ) < GAP_BETWEEN_RESERVATIONS &&
             dayjs(checkingTable.reservations[idx + 1].date).diff(
               dayjs(createReservationData.date),
               'second',
-            ) > 7200
+            ) > GAP_BETWEEN_RESERVATIONS
           ) {
             console.log('Between');
             isAvailable = true;

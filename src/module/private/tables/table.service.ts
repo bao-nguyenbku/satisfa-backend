@@ -42,34 +42,25 @@ export class TableService {
     }
   }
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
-    const { status, minSeat } = filter;
+    const { minSeat } = filter;
+    let filterObj = {};
     try {
-      if (_.isEmpty(filter)) {
-        const result = await this.tableModel
-          .find()
-          .populate({
-            path: 'reservations',
-            populate: {
-              path: 'customerId',
-              select: '-password -role',
-            },
-          })
-          .lean();
-        return transformResult(result);
+      if (!_.isEmpty(filter)) {
+        filterObj = {
+          numberOfSeat: {
+            $gte: minSeat,
+          },
+        };
       }
       const result = await this.tableModel
-        .find({
-          status,
-          numberOfSeat: {
-            $gt: minSeat,
-          },
-        })
+        .find(filterObj)
         .populate({
           path: 'reservations',
           populate: {
             path: 'customerId',
             select: '-password -role',
           },
+          select: '-tableId',
         })
         .lean();
       if (result) {
@@ -145,7 +136,6 @@ export class TableService {
         );
         if (idx !== -1) {
           cloneReservations.splice(idx, 1);
-          console.log(cloneReservations);
           return this.tableModel.findByIdAndUpdate(tableId, {
             reservations: cloneReservations,
           });
