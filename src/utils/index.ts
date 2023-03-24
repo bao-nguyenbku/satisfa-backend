@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as dayjs from 'dayjs';
 
 export function transformResult<T>(values: T): T {
   if (_.isArray(values)) {
@@ -34,4 +35,9 @@ export function transformResult<T>(values: T): T {
     } as T;
   }
   return values;
+}
+
+export function generateOrderId(): string {
+  const id = `${dayjs().hour()}${dayjs().minute()}${dayjs().second()}${dayjs().millisecond()}`;
+  return id;
 }

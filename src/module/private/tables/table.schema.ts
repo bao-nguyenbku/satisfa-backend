@@ -14,7 +14,7 @@ export class Table {
   code: string;
 
   @Prop({ required: true })
-  numberOfSeat: number;
+  numberOfSeats: number;
 
   @Prop([
     {

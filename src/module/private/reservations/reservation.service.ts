@@ -5,6 +5,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import * as _ from 'lodash';
+import * as dayjs from 'dayjs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateReservationDto } from './dto/create-reserve.dto';
@@ -19,10 +20,6 @@ import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
 import { transformResult } from '~/utils';
 import { GAP_BETWEEN_RESERVATIONS } from '~/constants';
-// import { TableStatus } from '../tables/table.schema';
-// import { ReservationEntity } from './entities/reservation.entity';
-// import duration from 'dayjs/plugin/duration';
-import * as dayjs from 'dayjs';
 
 Injectable();
 export class ReservationService {
@@ -103,8 +100,7 @@ export class ReservationService {
         isAvailable = true;
         console.log('Empty');
         reservations = [...checkingTable.reservations, createdReservation];
-      }
-      if (
+      } else if (
         dayjs(createReservationData.date).diff(
           dayjs(checkingTable.reservations[0].date),
           'second',

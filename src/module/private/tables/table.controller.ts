@@ -8,8 +8,6 @@ import {
   UseFilters,
   Patch,
   Query,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { CreateTableDto } from './dto/create-table.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';

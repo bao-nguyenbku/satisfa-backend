@@ -20,6 +20,7 @@ import { AppController } from './app.controller';
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
     }),
     JwtModule,
     AuthModule,

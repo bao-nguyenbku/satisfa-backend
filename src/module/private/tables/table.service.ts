@@ -1,25 +1,16 @@
-import {
-  Injectable,
-  NotAcceptableException,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CreateTableDto } from './dto/create-table.dto';
 import * as _ from 'lodash';
-import {
-  Table,
-  TableDocument,
-  TableStatus,
-} from '~/module/private/tables/table.schema';
+import * as dayjs from 'dayjs';
+import { Table, TableDocument } from '~/module/private/tables/table.schema';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { transformResult } from '~/utils';
-import { Reservation } from '../reservations/reservation.schema';
 
 export type TableFilter = {
-  status: string;
-  minSeat: number;
+  reservationDate?: string;
+  minSeat?: number;
 };
 @Injectable()
 export class TableService {
@@ -42,12 +33,12 @@ export class TableService {
     }
   }
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
-    const { minSeat } = filter;
+    const { minSeat, reservationDate } = filter;
     let filterObj = {};
     try {
-      if (!_.isEmpty(filter)) {
+      if (!_.isEmpty(minSeat)) {
         filterObj = {
-          numberOfSeat: {
+          numberOfSeats: {
             $gte: minSeat,
           },
         };
@@ -64,7 +55,19 @@ export class TableService {
         })
         .lean();
       if (result) {
-        return transformResult(result);
+        let filterResult = [...result];
+        if (reservationDate) {
+          filterResult = result.map((table) => {
+            const filterReservation = table.reservations.filter(
+              (ele) => dayjs(ele.date).diff(dayjs(reservationDate)) >= 0,
+            );
+            return {
+              ...table,
+              reservations: filterReservation,
+            };
+          });
+        }
+        return transformResult(filterResult);
       }
     } catch (error) {
       throw error;

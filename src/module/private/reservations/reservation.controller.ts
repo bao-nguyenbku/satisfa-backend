@@ -38,6 +38,7 @@ export class ReservationController {
 
   @Post('create')
   async createReservation(@Body() createReservationData: CreateReservationDto) {
+    console.log(createReservationData);
     return this.reservationService.create(createReservationData);
   }
 
