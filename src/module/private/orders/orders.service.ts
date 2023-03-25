@@ -18,7 +18,7 @@ export class OrdersService {
   ) {}
   async findByFilter(filter: OrderFilter) {
     const { status } = filter;
-    if (!_.isEmpty(filter)) {
+    if (!_.isEmpty(status)) {
       if (!Object.values(OrderStatus).includes(status)) {
         throw new HttpException(
           `${status} is not a valid status`,
@@ -28,7 +28,9 @@ export class OrdersService {
     }
     try {
       const result = await this.orderModel
-        .find()
+        .find({
+          status,
+        })
         .populate({
           path: 'reservationId',
           populate: {

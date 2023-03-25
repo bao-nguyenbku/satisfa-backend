@@ -18,20 +18,6 @@ export class TableService {
     @InjectModel(Table.name) private tableModel: Model<TableDocument>,
   ) {}
 
-  async findAll(): Promise<Table[]> {
-    try {
-      const tableList = await this.tableModel.find().lean();
-      return tableList.map((table) => {
-        const { _id, __v, ...rest } = table;
-        return {
-          id: _id,
-          ...rest,
-        };
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
     const { minSeat, reservationDate } = filter;
     let filterObj = {};
@@ -73,14 +59,26 @@ export class TableService {
       throw error;
     }
   }
-  async findById(id: string) {
+  async findById(id: string, filter: TableFilter) {
+    const { reservationDate } = filter;
     try {
       if (mongoose.Types.ObjectId.isValid(id)) {
         const existedTable = await this.tableModel
           .findById(id)
-          .populate('reservations')
+          .populate({
+            path: 'reservations',
+            populate: {
+              path: 'customerId',
+              select: '-password -role',
+            },
+            select: '-tableId',
+          })
           .lean();
         if (existedTable) {
+          const filterdReservation = existedTable.reservations.filter((ele) => {
+            return dayjs(ele.date).diff(dayjs(reservationDate)) >= 0;
+          });
+          existedTable.reservations = filterdReservation;
           return transformResult(existedTable);
         }
         return null;

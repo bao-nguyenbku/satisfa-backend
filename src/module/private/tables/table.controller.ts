@@ -28,8 +28,8 @@ export class TableController {
 
   @Get(':id')
   @UseFilters(MongoExceptionFilter)
-  async getTableById(@Param('id') id: string) {
-    return this.tableService.findById(id);
+  async getTableById(@Param('id') id: string, @Query() filter: TableFilter) {
+    return this.tableService.findById(id, filter);
   }
 
   @Post('create')
