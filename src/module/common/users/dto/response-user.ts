@@ -1,6 +1,4 @@
 import { OmitType } from '@nestjs/swagger';
-import { UserDataEntity } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
 
-export class UserDataDto extends OmitType(UserDataEntity, [
-  'password',
-] as const) {}
+export class UserDataDto extends OmitType(UserEntity, ['password'] as const) {}

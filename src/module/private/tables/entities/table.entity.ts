@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
-import { TableStatus } from '../table.schema';
+import { ReservationEntity } from '../../reservations/entities/reservation.entity';
 
 export class TableEntity {
   @ApiProperty()
@@ -13,5 +13,5 @@ export class TableEntity {
   numberOfSeats: number;
 
   @ApiProperty()
-  status: TableStatus;
+  reservations: ReservationEntity[];
 }

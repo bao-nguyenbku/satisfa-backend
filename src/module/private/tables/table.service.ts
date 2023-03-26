@@ -1,25 +1,16 @@
-import {
-  Injectable,
-  NotAcceptableException,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateTableDto } from './dto/create-table.dto';
-import mongoose from 'mongoose';
-import {
-  Table,
-  TableDocument,
-  TableStatus,
-} from '~/module/private/tables/table.schema';
+import * as _ from 'lodash';
+import * as dayjs from 'dayjs';
+import { Table, TableDocument } from '~/module/private/tables/table.schema';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { transformResult } from '~/utils';
-import * as _ from 'lodash';
 
 export type TableFilter = {
-  status: string;
-  minSeat: number;
+  reservationDate?: string;
+  minSeat?: number;
 };
 @Injectable()
 export class TableService {
@@ -27,56 +18,82 @@ export class TableService {
     @InjectModel(Table.name) private tableModel: Model<TableDocument>,
   ) {}
 
-  async findAll(): Promise<Table[]> {
-    try {
-      const tableList = await this.tableModel.find().lean();
-      return tableList.map((table) => {
-        const { _id, __v, ...rest } = table;
-        return {
-          id: _id,
-          ...rest,
-        };
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
-    const { status, minSeat } = filter;
+    const { minSeat, reservationDate } = filter;
+    let filterObj = {};
     try {
-      if (_.isEmpty(filter)) {
-        const result = await this.tableModel.find().lean();
-        return transformResult(result);
-      }
-      if (Object.values(TableStatus).includes(TableStatus[status]) === false) {
-        throw new HttpException(
-          `${status} is not a valid status`,
-          HttpStatus.NOT_ACCEPTABLE,
-        );
+      if (!_.isEmpty(minSeat)) {
+        filterObj = {
+          numberOfSeats: {
+            $gte: minSeat,
+          },
+        };
       }
       const result = await this.tableModel
-        .find({
-          status,
-          numberOfSeats: {
-            $gt: minSeat,
+
+        .find(filterObj)
+        .populate({
+          path: 'reservations',
+          populate: {
+            path: 'customerId',
+            select: '-password -role',
           },
+          select: '-tableId',
         })
         .lean();
       if (result) {
-        return transformResult(result);
+        let filterResult = [...result];
+        if (reservationDate) {
+          filterResult = result.map((table) => {
+            const filterReservation = table.reservations.filter(
+              (ele) => dayjs(ele.date).diff(dayjs(reservationDate)) >= 0,
+            );
+            return {
+              ...table,
+              reservations: filterReservation,
+            };
+          });
+        }
+        return transformResult(filterResult);
       }
     } catch (error) {
       throw error;
     }
   }
-  async findById(id: string) {
+  async findById(id: string, filter: TableFilter) {
+    const { reservationDate } = filter;
     try {
       if (mongoose.Types.ObjectId.isValid(id)) {
-        const existedTable = await this.tableModel.findById(id).lean();
+        const existedTable = await this.tableModel
+          .findById(id)
+          .populate({
+            path: 'reservations',
+            populate: {
+              path: 'customerId',
+              select: '-password -role',
+            },
+            select: '-tableId',
+          })
+          .lean();
         if (existedTable) {
+          const filterdReservation = existedTable.reservations.filter((ele) => {
+            return dayjs(ele.date).diff(dayjs(reservationDate)) >= 0;
+          });
+          existedTable.reservations = filterdReservation;
           return transformResult(existedTable);
         }
         return null;
+      } else {
+        throw new NotAcceptableException('This is not a valid table id');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async findOriginalById(id: string) {
+    try {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        return this.tableModel.findById(id).populate('reservations').lean();
       } else {
         throw new NotAcceptableException('This is not a valid table id');
       }
@@ -96,7 +113,6 @@ export class TableService {
 
   async update(id: string, updateTableData: UpdateTableDto) {
     try {
-      console.log(id);
       const updated = await this.tableModel.updateOne(
         { _id: id },
         updateTableData,
@@ -107,7 +123,28 @@ export class TableService {
       throw error;
     }
   }
-
+  async deleteReservationById(tableId: string, reservationId: string) {
+    try {
+      const existedTable = await this.tableModel
+        .findById(tableId)
+        .populate({
+          path: 'reservations',
+        })
+        .lean();
+      if (existedTable) {
+        const cloneReservations = [...existedTable.reservations];
+        const idx = cloneReservations.findIndex(
+          (reserved) => reserved._id.toString() === reservationId,
+        );
+        if (idx !== -1) {
+          cloneReservations.splice(idx, 1);
+          return this.tableModel.findByIdAndUpdate(tableId, {
+            reservations: cloneReservations,
+          });
+        }
+      }
+    } catch (error) {}
+  }
   async delete(id: string): Promise<Table> {
     try {
       return this.tableModel.findByIdAndDelete(id).exec();
