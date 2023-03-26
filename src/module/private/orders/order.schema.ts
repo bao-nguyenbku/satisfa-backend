@@ -19,7 +19,7 @@ export enum PaymentStatus {
 }
 @Schema({ timestamps: true })
 export class Order {
-  @Prop({ required: true, default: generateOrderId(), unique: true })
+  @Prop({ required: true, unique: true })
   id: string;
 
   @Prop({ required: true })
@@ -41,9 +41,7 @@ export class Order {
   customerId: User;
 
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Reservation',
   })
   reservationId: Reservation;
 

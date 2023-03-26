@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderStatus } from './order.schema';
 import { OrderFilter } from './orders.service';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -32,13 +33,12 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() updateData: UpdateOrderDto,
   ) {
-    console.log(id, updateData);
     return this.orderService.update(id, updateData);
   }
   @Post('create')
   @UseGuards(JwtAuthGuard)
   @UseFilters(MongoExceptionFilter)
-  async createOrder(@Body() createOrderData: any) {
+  async createOrder(@Body() createOrderData: CreateOrderDto) {
     return this.orderService.create(createOrderData);
   }
 }
