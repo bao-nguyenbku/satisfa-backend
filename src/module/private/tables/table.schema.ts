@@ -8,13 +8,18 @@ export enum TableStatus {
   CHECKED_IN = 'CHECKED_IN',
   RESERVED = 'RESERVED',
 }
-@Schema()
+@Schema({
+  timestamps: {
+    createdAt: 'createdAt',
+    updatedAt: 'lastUpdate',
+  }})
 export class Table {
   @Prop({ required: true, unique: true })
   code: string;
 
   @Prop({ required: true })
   numberOfSeats: number;
+
 
   @Prop([
     {
@@ -24,6 +29,13 @@ export class Table {
     },
   ])
   reservations: (Reservation & { _id: mongoose.Schema.Types.ObjectId })[];
+
+  @Prop()
+  createdAt: string;
+
+  @Prop()
+  lastUpdate: string;
+
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);
