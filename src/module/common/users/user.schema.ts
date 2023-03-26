@@ -16,7 +16,7 @@ export class User {
 
   @Prop({
     default:
-      'https://blogchomeo.com/wp-content/uploads/2021/06/nguon-goc-xuat-xu-cho-corgi.jpg',
+      'https://images.unsplash.com/photo-1679032227470-8fe23399deac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80',
   })
   avatar: string;
 

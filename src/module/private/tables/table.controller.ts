@@ -8,14 +8,12 @@ import {
   UseFilters,
   Patch,
   Query,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { CreateTableDto } from './dto/create-table.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { TableService } from './table.service';
-import { TableStatus } from './table.schema';
+// import { TableStatus } from './table.schema';
 import type { TableFilter } from './table.service';
 import * as _ from 'lodash';
 
@@ -30,8 +28,8 @@ export class TableController {
 
   @Get(':id')
   @UseFilters(MongoExceptionFilter)
-  async getTableById(@Param('id') id: string) {
-    return this.tableService.findById(id);
+  async getTableById(@Param('id') id: string, @Query() filter: TableFilter) {
+    return this.tableService.findById(id, filter);
   }
 
   @Post('create')
