@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument } from './order.schema';
 import { Model } from 'mongoose';
@@ -6,6 +11,9 @@ import { transformResult } from '~/utils';
 import * as _ from 'lodash';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderStatus } from './order.schema';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { ReservationService } from '../reservations/reservation.service';
+import { generateOrderId } from '~/utils';
 
 export type OrderFilter = {
   status?: OrderStatus;
@@ -15,6 +23,7 @@ export type OrderFilter = {
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    private readonly reservationService: ReservationService,
   ) {}
   async findByFilter(filter: OrderFilter) {
     const { status } = filter;
@@ -58,9 +67,24 @@ export class OrdersService {
       throw error;
     }
   }
-  async create(createOrderData: any) {
-    const created = new this.orderModel(createOrderData);
-    return created.save();
+  async create(createOrderData: CreateOrderDto) {
+    const { reservationId } = createOrderData;
+    try {
+      const existedReservation = await this.reservationService.findById(
+        reservationId,
+      );
+      if (!existedReservation) {
+        throw new NotFoundException('Can not find this reservation');
+      }
+      const created = new this.orderModel({
+        ...createOrderData,
+        id: generateOrderId(),
+        reservationId: existedReservation,
+      });
+      return created.save();
+    } catch (error) {
+      throw error;
+    }
   }
 
   async update(id: string, updateData: UpdateOrderDto) {

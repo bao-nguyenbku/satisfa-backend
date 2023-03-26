@@ -12,6 +12,8 @@ import { Table, TableSchema } from '../tables/table.schema';
 import { User, UserSchema } from '~/module/common/users/user.schema';
 import { UsersService } from '~/module/common/users/user.service';
 import { HashService } from '~/module/common/users/hash.service';
+import { TableModule } from '../tables/table.module';
+import { UsersModule } from '~/module/common/users/user.module';
 
 @Module({
   imports: [
@@ -30,9 +32,11 @@ import { HashService } from '~/module/common/users/hash.service';
         schema: UserSchema,
       },
     ]),
+    TableModule,
+    UsersModule,
   ],
 
-  providers: [ReservationService, TableService, UsersService, HashService],
+  providers: [ReservationService, TableService],
   controllers: [ReservationController],
 })
 export class ReservationModule {}

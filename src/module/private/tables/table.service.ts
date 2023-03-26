@@ -131,6 +131,10 @@ export class TableService {
           path: 'reservations',
         })
         .lean();
+      console.log(
+        '🚀 ~ file: table.service.ts:133 ~ TableService ~ deleteReservationById ~ existedTable:',
+        existedTable,
+      );
       if (existedTable) {
         const cloneReservations = [...existedTable.reservations];
         const idx = cloneReservations.findIndex(
@@ -143,7 +147,10 @@ export class TableService {
           });
         }
       }
-    } catch (error) {}
+      return null;
+    } catch (error) {
+      throw error;
+    }
   }
   async delete(id: string): Promise<Table> {
     try {
