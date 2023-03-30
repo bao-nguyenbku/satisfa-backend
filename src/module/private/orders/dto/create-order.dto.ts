@@ -1,10 +1,11 @@
 import { OmitType } from '@nestjs/swagger';
 import { OrderEntity } from '../entities/order.entity';
-import { ReservationEntity } from '../../reservations/entities/reservation.entity';
+import { IsString } from 'class-validator';
 
 export class CreateOrderDto extends OmitType(OrderEntity, [
   'id',
   'reservationId',
 ]) {
-  reservationId: string;
+  @IsString()
+  reservationId?: string;
 }

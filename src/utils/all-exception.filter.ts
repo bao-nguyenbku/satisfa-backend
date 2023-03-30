@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   InternalServerErrorException,
+  ValidationError,
 } from '@nestjs/common';
 
 @Catch()
@@ -17,12 +18,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-
+    const message =
+      exception instanceof HttpException
+        ? exception.getResponse()['message']
+        : undefined;
     /**
      * @description Exception json response
      * @param message
      */
-    const responseMessage = (type, message) => {
+    const responseMessage = (type: string, message: string) => {
       response.status(status).json({
         statusCode: status,
         path: request.url,
@@ -33,7 +37,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // Throw an exceptions for either
     // MongoError, ValidationError, TypeError, CastError and Error
-    if (exception.message) {
+    if (message) {
+      responseMessage(exception.name, message);
+    } else if (exception.message) {
       responseMessage('Error', exception.message);
     } else {
       responseMessage(exception.name, exception.message);
