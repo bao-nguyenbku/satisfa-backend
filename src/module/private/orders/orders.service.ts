@@ -7,13 +7,14 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument } from './order.schema';
 import { Model } from 'mongoose';
-import { transformResult } from '~/utils';
 import * as _ from 'lodash';
+import { transformResult } from '~/utils';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderStatus } from './order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ReservationService } from '../reservations/reservation.service';
 import { generateOrderId } from '~/utils';
+import { OrderType } from './order.schema';
 
 export type OrderFilter = {
   status?: OrderStatus;
@@ -68,20 +69,25 @@ export class OrdersService {
     }
   }
   async create(createOrderData: CreateOrderDto) {
-    const { reservationId } = createOrderData;
+    const { reservationId, type } = createOrderData;
     try {
-      const existedReservation = await this.reservationService.findById(
-        reservationId,
-      );
-      if (!existedReservation) {
-        throw new NotFoundException('Can not find this reservation');
+      let existedReservation;
+      if (type === OrderType.DINE_IN) {
+        existedReservation = await this.reservationService.findById(
+          reservationId,
+        );
+        if (!existedReservation) {
+          throw new NotFoundException('Can not find this reservation');
+        }
       }
+
       const created = new this.orderModel({
         ...createOrderData,
         id: generateOrderId(),
         reservationId: existedReservation,
       });
-      return created.save();
+      const result = (await created.save()).toObject();
+      return transformResult(result);
     } catch (error) {
       throw error;
     }

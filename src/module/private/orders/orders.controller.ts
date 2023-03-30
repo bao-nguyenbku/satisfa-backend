@@ -8,6 +8,8 @@ import {
   Param,
   Patch,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
@@ -37,6 +39,7 @@ export class OrdersController {
   }
   @Post('create')
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async createOrder(@Body() createOrderData: CreateOrderDto) {
     return this.orderService.create(createOrderData);
