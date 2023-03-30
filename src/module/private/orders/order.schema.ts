@@ -3,7 +3,6 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '~/module/common/users/user.schema';
 import { Reservation } from '../reservations/reservation.schema';
 import { Product } from '../products/product.schema';
-import { generateOrderId } from '~/utils';
 
 export type OrderDocument = HydratedDocument<Order>;
 export enum OrderStatus {
@@ -17,12 +16,10 @@ export enum PaymentStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',
 }
-
 export enum OrderType {
-  DINE_IN = 'DINE_IN',
   TAKEAWAY = 'TAKEAWAY',
+  DINE_IN = 'DINE_IN',
 }
-
 @Schema({ timestamps: true })
 export class Order {
   @Prop({ required: true, unique: true })
@@ -39,6 +36,9 @@ export class Order {
   @Prop({ required: true, default: OrderStatus.NEW })
   status: OrderStatus;
 
+  @Prop({ required: true, default: OrderType.DINE_IN })
+  type: OrderType;
+
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -53,9 +53,6 @@ export class Order {
 
   @Prop({ required: true })
   items: (Product & { qty: number })[];
-
-  @Prop({ required: true })
-  type: OrderType;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

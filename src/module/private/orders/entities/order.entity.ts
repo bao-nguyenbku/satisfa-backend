@@ -1,8 +1,9 @@
-import { UserEntity } from '~/module/common/users/entities/user.entity';
-import { OrderStatus, PaymentStatus, OrderType } from '../order.schema';
-import { ReservationEntity } from '../../reservations/entities/reservation.entity';
-import { ProductEntity } from '../../products/entities/product.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum } from 'class-validator';
+import { UserEntity } from '~/module/common/users/entities/user.entity';
+import { OrderStatus, OrderType, PaymentStatus } from '../order.schema';
+import { ReservationEntity } from '~/module/private/reservations/entities/reservation.entity';
+import { ProductEntity } from '~/module/private/products/entities/product.entity';
 
 export class OrderEntity {
   @ApiProperty()
@@ -10,6 +11,10 @@ export class OrderEntity {
 
   @ApiProperty()
   totalCost: number;
+
+  @ApiProperty()
+  @IsEnum(OrderType)
+  type: OrderType;
 
   @ApiProperty()
   paymentStatus: PaymentStatus;
