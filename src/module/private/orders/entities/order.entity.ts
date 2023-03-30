@@ -1,5 +1,5 @@
 import { UserEntity } from '~/module/common/users/entities/user.entity';
-import { OrderStatus, PaymentStatus } from '../order.schema';
+import { OrderStatus, PaymentStatus, OrderType } from '../order.schema';
 import { ReservationEntity } from '../../reservations/entities/reservation.entity';
 import { ProductEntity } from '../../products/entities/product.entity';
 import { ApiProperty } from '@nestjs/swagger';
@@ -22,6 +22,9 @@ export class OrderEntity {
 
   @ApiProperty()
   reservationId: ReservationEntity;
+
+  @ApiProperty()
+  type: OrderType;
 
   @ApiProperty()
   items: (ProductEntity & { qty: number })[];

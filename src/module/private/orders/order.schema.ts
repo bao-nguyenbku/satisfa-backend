@@ -17,6 +17,12 @@ export enum PaymentStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',
 }
+
+export enum OrderType {
+  DINE_IN = 'DINE_IN',
+  TAKEAWAY = 'TAKEAWAY',
+}
+
 @Schema({ timestamps: true })
 export class Order {
   @Prop({ required: true, unique: true })
@@ -41,12 +47,15 @@ export class Order {
   customerId: User;
 
   @Prop({
-    required: true,
+    required: false,
   })
   reservationId: Reservation;
 
   @Prop({ required: true })
   items: (Product & { qty: number })[];
+
+  @Prop({ required: true })
+  type: OrderType;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
