@@ -14,6 +14,7 @@ import { UploadModule } from '~/module/private/uploads/upload.module';
 import { CategoryModule } from '~/module/private/categories/category.module';
 import { OrdersModule } from './module/private/orders/orders.module';
 import { AppController } from './app.controller';
+import { PaymentModule } from './module/private/payment/payment.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AppController } from './app.controller';
     CategoryModule,
     ReservationModule,
     OrdersModule,
+    PaymentModule,
   ],
   controllers: [AppController],
 })
