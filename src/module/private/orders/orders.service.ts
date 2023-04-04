@@ -1,69 +1,81 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order, OrderDocument } from './order.schema';
+import { Order, OrderDocument, PaymentStatus } from './order.schema';
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 import { transformResult } from '~/utils';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { OrderStatus } from './order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ReservationService } from '../reservations/reservation.service';
 import { generateOrderId } from '~/utils';
 import { OrderType } from './order.schema';
-
-export type OrderFilter = {
-  status?: OrderStatus;
-};
+import { OrderFilterDto } from './dto/query-order.dto';
+import { PaymentService } from '../payment/payment.service';
+import { PaidOrderDto } from './dto/paid-order.dto';
+import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
+import { PaymentCash } from '../payment/payment.schema';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private readonly reservationService: ReservationService,
+    private readonly paymentService: PaymentService,
   ) {}
-  async findByFilter(filter: OrderFilter) {
+  async findByFilter(filter: OrderFilterDto) {
     const { status } = filter;
-    if (!_.isEmpty(status)) {
-      if (!Object.values(OrderStatus).includes(status)) {
-        throw new HttpException(
-          `${status} is not a valid status`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+    let filterObj = {};
+    if (!_.isEmpty(filter)) {
+      filterObj = {
+        status,
+      };
     }
     try {
       const result = await this.orderModel
-        .find({
-          status,
-        })
+        .find(filterObj)
         .populate({
-          path: 'reservationId',
-          populate: {
-            path: 'tableId',
-          },
+          path: 'reservationId reservationId.tableId',
         })
         .populate('customerId', '-password -email -role')
+        .populate('paymentInfo', '-orderId')
         .sort({
           createdAt: -1,
         })
         .lean();
       // return result;
       if (result && _.isArray(result)) {
-        return transformResult(
-          result.map((obj) => {
-            return {
-              ...obj,
-              totalItem: obj.items.reduce((prev, curr) => prev + curr.qty, 0),
-            };
-          }),
-        );
+        const newResult = result.map((obj) => {
+          delete obj.payment;
+          return {
+            ...obj,
+            totalItem: obj.items.reduce((prev, curr) => prev + curr.qty, 0),
+          };
+        });
+        return transformResult(newResult);
       }
       return [];
+    } catch (error) {
+      throw error;
+    }
+  }
+  async findById(id: string): Promise<Order> {
+    try {
+      const result = await this.orderModel
+        .findOne({ id })
+        .populate({
+          path: 'reservationId reservationId.tableId',
+        })
+        .populate('customerId', '-password -email -role')
+        .populate('paymentInfo', '-orderId')
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
+
+      return transformResult({
+        ...result,
+        totalItem: result.items.reduce((prev, curr) => prev + curr.qty, 0),
+      });
     } catch (error) {
       throw error;
     }
@@ -94,20 +106,39 @@ export class OrdersService {
   }
 
   async update(id: string, updateData: UpdateOrderDto) {
-    const { status } = updateData;
-    if (!Object.values(OrderStatus).includes(status)) {
-      throw new HttpException(
-        `${status} is not a valid status`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     try {
-      return this.orderModel.findOneAndUpdate(
-        { id },
-        {
-          status,
-        },
-      );
+      return this.orderModel.findOneAndUpdate({ id }, updateData);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async paid(id: string, paymentData: PaidOrderDto) {
+    try {
+      const existedOrder = await this.orderModel.findOne({ id }).lean();
+      if (_.isEmpty(existedOrder)) {
+        return;
+      }
+      const payData: CreatePaymentDto = {
+        type: paymentData.type,
+        info: paymentData.info as PaymentCash,
+        orderId: id,
+      };
+      const createdPayment = await this.paymentService.create(payData);
+      // {
+      //   id: '733e16fc-b8b9-4682-8f52-5380eb1ae54c',
+      //   type: 'CASH',
+      //   info: { totalPay: 2000000, totalCost: 1600000 },
+      //   orderId: new ObjectId("6425893a090f7e07d2bcba09")
+      // }
+
+      if (_.isEmpty(createdPayment)) {
+        return;
+      }
+      const { id: paymentId } = createdPayment;
+      return this.update(id, {
+        payment: paymentId,
+        paymentStatus: PaymentStatus.PAID,
+      });
     } catch (error) {
       throw error;
     }

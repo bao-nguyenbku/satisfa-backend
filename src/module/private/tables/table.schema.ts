@@ -12,14 +12,14 @@ export enum TableStatus {
   timestamps: {
     createdAt: 'createdAt',
     updatedAt: 'lastUpdate',
-  }})
+  },
+})
 export class Table {
   @Prop({ required: true, unique: true })
   code: string;
 
   @Prop({ required: true })
   numberOfSeats: number;
-
 
   @Prop([
     {
@@ -35,7 +35,6 @@ export class Table {
 
   @Prop()
   lastUpdate: string;
-
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);

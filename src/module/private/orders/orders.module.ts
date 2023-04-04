@@ -9,11 +9,14 @@ import {
   ReservationSchema,
 } from '../reservations/reservation.schema';
 import { Table, TableSchema } from '../tables/table.schema';
+import { Payment, PaymentSchema } from '../payment/payment.schema';
 import { UsersModule } from '~/module/common/users/user.module';
 import { TableModule } from '../tables/table.module';
 import { ReservationModule } from '../reservations/reservation.module';
 import { ReservationService } from '../reservations/reservation.service';
 import { TableService } from '../tables/table.service';
+import { PaymentModule } from '../payment/payment.module';
+import { PaymentService } from '../payment/payment.service';
 
 @Module({
   imports: [
@@ -30,17 +33,23 @@ import { TableService } from '../tables/table.service';
         name: Table.name,
         schema: TableSchema,
       },
+      {
+        name: Payment.name,
+        schema: PaymentSchema,
+      },
     ]),
     ConfigModule,
     UsersModule,
     TableModule,
     ReservationModule,
+    PaymentModule,
   ],
   controllers: [OrdersController],
   providers: [
     OrdersService,
     ReservationService,
     TableService,
+    PaymentService,
     // UsersService,
     // HashService,
   ],

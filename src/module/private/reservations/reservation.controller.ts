@@ -8,14 +8,17 @@ import {
   UseFilters,
   Patch,
   Query,
+  UsePipes,
+  ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reserve.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { ReservationService } from './reservation.service';
 import { TableService } from '../tables/table.service';
-import { TableStatus } from '../tables/table.schema';
 import { ReservationFilter } from './reservation.schema';
+import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
 
 @Controller('reservations')
 export class ReservationController {
@@ -37,8 +40,10 @@ export class ReservationController {
   }
 
   @Post('create')
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
   async createReservation(@Body() createReservationData: CreateReservationDto) {
-    console.log(createReservationData);
     return this.reservationService.create(createReservationData);
   }
 

@@ -21,7 +21,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Satisfa API Documentation')
     .setDescription('')
-    .setVersion('1.0')
+    .setVersion('Beta')
     .addTag('')
     .build();
   const document = SwaggerModule.createDocument(app, config);

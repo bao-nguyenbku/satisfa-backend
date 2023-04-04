@@ -30,7 +30,6 @@ export class TableService {
         };
       }
       const result = await this.tableModel
-
         .find(filterObj)
         .populate({
           path: 'reservations',
@@ -131,10 +130,6 @@ export class TableService {
           path: 'reservations',
         })
         .lean();
-      console.log(
-        '🚀 ~ file: table.service.ts:133 ~ TableService ~ deleteReservationById ~ existedTable:',
-        existedTable,
-      );
       if (existedTable) {
         const cloneReservations = [...existedTable.reservations];
         const idx = cloneReservations.findIndex(
