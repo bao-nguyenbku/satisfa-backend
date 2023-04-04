@@ -29,8 +29,5 @@ export class OrderEntity {
   reservationId: ReservationEntity;
 
   @ApiProperty()
-  type: OrderType;
-
-  @ApiProperty()
   items: (ProductEntity & { qty: number })[];
 }

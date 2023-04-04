@@ -39,8 +39,24 @@ export class ReservationService {
           .lean();
         return transformResult(result);
       }
-      const { date } = filter;
-      const result = await this.reservationModel.find({ date }).lean();
+      const { date, user } = filter;
+      const currentDate = new Date().toISOString();
+      const endDate = '2099 08 18';
+      if (user) {
+        const result = await this.reservationModel
+          .find({
+            date: {
+              $gte: currentDate,
+              $lte: endDate,
+            },
+            customerId: user,
+          })
+          .populate('tableId')
+          .lean();
+        return transformResult(result);
+      }
+
+      const result = await this.reservationModel.find({ date });
       return transformResult(result);
     } catch (error) {
       throw error;
