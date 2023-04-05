@@ -34,7 +34,7 @@ export class Order {
   paymentStatus: PaymentStatus;
 
   @Prop({
-    required: true,
+    required: false,
   })
   payment: string;
 

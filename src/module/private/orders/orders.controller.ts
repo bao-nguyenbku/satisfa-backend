@@ -49,7 +49,6 @@ export class OrdersController {
   ) {
     return this.orderService.update(id, updateData);
   }
-
   @Patch(':id/paid')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
