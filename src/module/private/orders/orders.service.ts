@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument, PaymentStatus } from './order.schema';
 import { Model } from 'mongoose';
@@ -85,6 +89,9 @@ export class OrdersService {
     try {
       let existedReservation;
       if (type === OrderType.DINE_IN) {
+        if (!reservationId) {
+          throw new BadRequestException('You must send a reservation');
+        }
         existedReservation = await this.reservationService.findById(
           reservationId,
         );

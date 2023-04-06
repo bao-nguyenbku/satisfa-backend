@@ -67,6 +67,11 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async createOrder(@Body() createOrderData: CreateOrderDto) {
+    console.log(
+      '🚀 ~ file: orders.controller.ts:70 ~ OrdersController ~ createOrder ~ createOrderData:',
+      Math.random(),
+      createOrderData,
+    );
     return this.orderService.create(createOrderData);
   }
 }

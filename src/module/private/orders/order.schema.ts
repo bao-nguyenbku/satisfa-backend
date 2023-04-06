@@ -3,16 +3,18 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '~/module/common/users/user.schema';
 import { Reservation } from '../reservations/reservation.schema';
 import { Product } from '../products/product.schema';
-import { Payment } from '~/module/private/payment/payment.schema';
+import { IsString, IsNumber } from 'class-validator';
+// import { Payment } from '~/module/private/payment/payment.schema';
+// import { TakeawayCustomer } from './entities/order.entity';
 
 export type OrderDocument = HydratedDocument<Order>;
+
 export enum OrderStatus {
   NEW = 'NEW',
   ACCEPTED = 'ACCEPTED',
   OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY',
   COMPLETE = 'COMPLETE',
 }
-
 export enum PaymentStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',
@@ -20,6 +22,16 @@ export enum PaymentStatus {
 export enum OrderType {
   TAKEAWAY = 'TAKEAWAY',
   DINE_IN = 'DINE_IN',
+}
+export class TakeawayCustomer {
+  @IsString()
+  name: string;
+
+  @IsNumber()
+  phone: number;
+
+  @IsString()
+  takingTime: string;
 }
 @Schema({ timestamps: true })
 export class Order {
@@ -29,12 +41,11 @@ export class Order {
   @Prop({ required: true })
   totalCost: number;
 
-  // enum PaymentStatus = [UNPAID, PAID]
   @Prop({ required: true, default: PaymentStatus.UNPAID })
   paymentStatus: PaymentStatus;
 
   @Prop({
-    required: true,
+    required: false,
   })
   payment: string;
 
@@ -46,11 +57,18 @@ export class Order {
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    required: false,
     ref: 'User',
   })
   customerId: User;
 
+  @Prop({
+    required: false,
+  })
+  @Prop({
+    required: false,
+  })
+  tempCustomer: TakeawayCustomer;
   @Prop({
     required: false,
   })

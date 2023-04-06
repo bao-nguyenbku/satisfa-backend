@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsString, IsNumber, IsOptional } from 'class-validator';
 import { UserEntity } from '~/module/common/users/entities/user.entity';
-import { OrderStatus, OrderType, PaymentStatus } from '../order.schema';
+import {
+  OrderStatus,
+  OrderType,
+  PaymentStatus,
+} from '~/module/private/orders/order.schema';
 import { ReservationEntity } from '~/module/private/reservations/entities/reservation.entity';
 import { ProductEntity } from '~/module/private/products/entities/product.entity';
 import { PaymentEntity } from '../../payment/entities/payment.entity';
+import { TakeawayCustomer } from '~/module/private/orders/order.schema';
 
 export class OrderEntity {
   @ApiProperty()
@@ -29,6 +34,7 @@ export class OrderEntity {
   paymentStatus: PaymentStatus;
 
   @ApiProperty()
+  @IsOptional()
   payment: PaymentEntity;
 
   @ApiProperty({
@@ -39,9 +45,15 @@ export class OrderEntity {
   status: OrderStatus;
 
   @ApiProperty()
+  @IsOptional()
   customerId: UserEntity;
 
   @ApiProperty()
+  @IsOptional()
+  tempCustomer: TakeawayCustomer;
+
+  @ApiProperty()
+  @IsOptional()
   reservationId: ReservationEntity;
 
   @ApiProperty()
