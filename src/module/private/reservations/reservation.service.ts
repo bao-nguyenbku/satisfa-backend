@@ -100,11 +100,13 @@ export class ReservationService {
         isAvailable = true;
         console.log('Empty');
         reservations = [...checkingTable.reservations, createdReservation];
-      } else if (
+      }
+      // Smaller than
+      else if (
         dayjs(createReservationData.date).diff(
           dayjs(checkingTable.reservations[0].date),
           'second',
-        ) <= GAP_BETWEEN_RESERVATIONS
+        ) < GAP_BETWEEN_RESERVATIONS
       ) {
         console.log('Smaller than');
         const createdReservation = await this.noValidateCreate(
@@ -112,14 +114,16 @@ export class ReservationService {
         );
         isAvailable = true;
         reservations = [createdReservation, ...checkingTable.reservations];
-      } else if (
+      }
+      // Greater than
+      else if (
         dayjs(createReservationData.date).diff(
           dayjs(
             checkingTable.reservations[checkingTable.reservations.length - 1]
               .date,
           ),
           'second',
-        ) >= GAP_BETWEEN_RESERVATIONS
+        ) > GAP_BETWEEN_RESERVATIONS
       ) {
         console.log('Greater than');
         const createdReservation = await this.noValidateCreate(
@@ -127,7 +131,9 @@ export class ReservationService {
         );
         isAvailable = true;
         reservations = [...checkingTable.reservations, createdReservation];
-      } else {
+      }
+      // Between
+      else {
         for (let idx = 0; idx < checkingTable.reservations.length - 1; idx++) {
           if (
             dayjs(checkingTable.reservations[idx].date).diff(
