@@ -16,16 +16,12 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { ReservationService } from './reservation.service';
-import { TableService } from '../tables/table.service';
 import { ReservationFilter } from './reservation.schema';
 import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
 
 @Controller('reservations')
 export class ReservationController {
-  constructor(
-    private readonly reservationService: ReservationService,
-    private readonly tableService: TableService,
-  ) {}
+  constructor(private readonly reservationService: ReservationService) {}
 
   @Get()
   @UseFilters(MongoExceptionFilter)

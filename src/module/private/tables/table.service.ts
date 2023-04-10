@@ -7,6 +7,7 @@ import * as dayjs from 'dayjs';
 import { Table, TableDocument } from '~/module/private/tables/table.schema';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { transformResult } from '~/utils';
+import { CreateReservationDto } from '../reservations/dto/create-reserve.dto';
 
 export type TableFilter = {
   reservationDate?: string;
@@ -20,6 +21,7 @@ export class TableService {
 
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
     const { minSeat, reservationDate } = filter;
+    console.log(filter);
     let filterObj = {};
     try {
       if (!_.isEmpty(minSeat)) {
@@ -115,6 +117,22 @@ export class TableService {
       const updated = await this.tableModel.updateOne(
         { _id: id },
         updateTableData,
+        { runValidators: true },
+      );
+      return updated;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateTableReservations(
+    id: string,
+    reservations: CreateReservationDto[],
+  ) {
+    try {
+      const updated = await this.tableModel.updateOne(
+        { _id: id },
+        { reservations: reservations },
         { runValidators: true },
       );
       return updated;
