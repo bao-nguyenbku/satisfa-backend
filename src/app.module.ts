@@ -16,6 +16,7 @@ import { OrdersModule } from './module/private/orders/orders.module';
 import { AppController } from './app.controller';
 import { PaymentModule } from './module/private/payment/payment.module';
 import { MomoModule } from './module/common/momo/momo.module';
+import { AnalysisModule } from './module/private/analysis/analysis.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { MomoModule } from './module/common/momo/momo.module';
     TableModule,
     CategoryModule,
     ReservationModule,
+    AnalysisModule,
     OrdersModule,
     PaymentModule,
     MomoModule,

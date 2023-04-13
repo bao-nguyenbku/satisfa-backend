@@ -44,6 +44,7 @@ import { PaymentService } from '../payment/payment.service';
     ReservationModule,
     PaymentModule,
   ],
+  exports: [OrdersService, MongooseModule],
   controllers: [OrdersController],
   providers: [
     OrdersService,

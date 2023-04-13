@@ -18,6 +18,8 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderFilterDto } from './dto/query-order.dto';
 import { PaidOrderDto } from './dto/paid-order.dto';
+import { Roles } from '~/module/common/auth/roles.decorator';
+import { Role } from '~/constants/role.enum';
 
 @Controller('orders')
 export class OrdersController {
@@ -54,10 +56,6 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async paidOrder(@Param('id') id: string, @Body() paymentData: PaidOrderDto) {
-    console.log(
-      '🚀 ~ file: orders.controller.ts:58 ~ OrdersController ~ paidOrder ~ paymentData:',
-      paymentData,
-    );
     return this.orderService.paid(id, paymentData);
   }
 
@@ -67,5 +65,16 @@ export class OrdersController {
   @UseFilters(MongoExceptionFilter)
   async createOrder(@Body() createOrderData: CreateOrderDto) {
     return this.orderService.create(createOrderData);
+  }
+
+  // ANALYSIS
+  @Get('/count')
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async getOrderAmount() {
+    console.log('Called');
+    return this.orderService.getOrderAmount();
   }
 }

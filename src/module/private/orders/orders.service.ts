@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument, PaymentStatus } from './order.schema';
 import { Model } from 'mongoose';
@@ -22,12 +26,11 @@ export class OrdersService {
     private readonly reservationService: ReservationService,
     private readonly paymentService: PaymentService,
   ) {}
-  async findByFilter(filter: OrderFilterDto) {
-    const { status } = filter;
+  async findByFilter(filter?: OrderFilterDto) {
     let filterObj = {};
     if (!_.isEmpty(filter)) {
       filterObj = {
-        status,
+        status: filter.status,
       };
     }
     try {
@@ -65,7 +68,7 @@ export class OrdersService {
         .populate({
           path: 'reservationId reservationId.tableId',
         })
-        .populate('customerId', '-password -email -role')
+        .populate('customerId', '-password -role')
         .populate('paymentInfo', '-orderId')
         .sort({
           createdAt: -1,
@@ -85,6 +88,9 @@ export class OrdersService {
     try {
       let existedReservation;
       if (type === OrderType.DINE_IN) {
+        if (!reservationId) {
+          throw new BadRequestException('You must send a reservation');
+        }
         existedReservation = await this.reservationService.findById(
           reservationId,
         );
@@ -92,9 +98,29 @@ export class OrdersService {
           throw new NotFoundException('Can not find this reservation');
         }
       }
-
+      if (type === OrderType.TAKEAWAY) {
+        if (!_.has(createOrderData, 'tempCustomer')) {
+          throw new BadRequestException('You must send takeaway information');
+        }
+        const { tempCustomer } = createOrderData;
+        if (
+          !_.has(tempCustomer, 'name') ||
+          _.has(tempCustomer, 'phone') ||
+          _.has(tempCustomer, 'takingTime') ||
+          _.isEmpty(tempCustomer.name) ||
+          _.isEmpty(tempCustomer.phone) ||
+          _.isEmpty(tempCustomer.takingTime)
+        ) {
+          throw new BadRequestException('Takeaway information is required');
+        }
+      }
+      const totalCost = createOrderData.items.reduce(
+        (prev, curr) => prev + curr.qty * curr.price,
+        0,
+      );
       const created = new this.orderModel({
         ...createOrderData,
+        totalCost,
         id: generateOrderId(),
         reservationId: existedReservation,
       });
@@ -140,6 +166,14 @@ export class OrdersService {
         payment: paymentId,
         paymentStatus: PaymentStatus.PAID,
       });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getOrderAmount() {
+    try {
+      return this.orderModel.countDocuments();
     } catch (error) {
       throw error;
     }

@@ -5,6 +5,7 @@ import { IsOptional, IsString } from 'class-validator';
 export class CreateOrderDto extends OmitType(OrderEntity, [
   'id',
   'reservationId',
+  'customerId',
 ]) {
   @IsString()
   @IsOptional()
