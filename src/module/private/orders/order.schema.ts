@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '~/module/common/users/user.schema';
 import { Reservation } from '../reservations/reservation.schema';
 import { Product } from '../products/product.schema';
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty } from 'class-validator';
 // import { Payment } from '~/module/private/payment/payment.schema';
 // import { TakeawayCustomer } from './entities/order.entity';
 
@@ -25,12 +25,15 @@ export enum OrderType {
 }
 export class TakeawayCustomer {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsNumber()
+  @IsNotEmpty()
   phone: number;
 
   @IsString()
+  @IsNotEmpty()
   takingTime: string;
 }
 @Schema({ timestamps: true })

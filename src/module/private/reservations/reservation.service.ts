@@ -69,11 +69,7 @@ export class ReservationService {
         const reservation = await this.reservationModel.findById(id).lean();
         // TODO Handle case product null;
         if (reservation) {
-          const { _id, __v, ...rest } = reservation;
-          return {
-            id: _id,
-            ...rest,
-          };
+          return transformResult(reservation);
         }
         return null;
       } else {

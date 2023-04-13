@@ -10,6 +10,7 @@ import { ReservationEntity } from '~/module/private/reservations/entities/reserv
 import { ProductEntity } from '~/module/private/products/entities/product.entity';
 import { PaymentEntity } from '../../payment/entities/payment.entity';
 import { TakeawayCustomer } from '~/module/private/orders/order.schema';
+import { Type } from 'class-transformer';
 
 export class OrderEntity {
   @ApiProperty()
@@ -50,6 +51,7 @@ export class OrderEntity {
 
   @ApiProperty()
   @IsOptional()
+  @Type(() => TakeawayCustomer)
   tempCustomer: TakeawayCustomer;
 
   @ApiProperty()
