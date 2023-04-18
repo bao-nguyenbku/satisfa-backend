@@ -27,4 +27,42 @@ export class PaymentService {
       throw error;
     }
   }
+
+  async getIncomeStatistic(timeFilter?: string) {
+    try {
+      console.log("timeFilter", timeFilter);
+      const date = new Date();
+      console.log(date);
+      const incomeList: any = this.paymentModel.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte:
+                timeFilter == 'year'
+                  ? new Date(date.getFullYear(), 0, 1)
+                  : new Date(date.getFullYear(), date.getMonth(), 1),
+              $lt:
+                timeFilter == 'year'
+                  ? new Date(date.getFullYear(), 11, 31)
+                  : new Date(date.getFullYear(), date.getMonth() + 1, 0),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            totalSaleAmount: { $sum: '$info.totalCost' },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: {
+            _id: 1,
+          },
+        },
+      ]);
+      console.log(transformResult(incomeList));
+      return transformResult(incomeList);
+    } catch (error) {}
+  }
 }

@@ -77,4 +77,14 @@ export class OrdersController {
     console.log('Called');
     return this.orderService.getOrderAmount();
   }
+
+  @Get('/bestseller')
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async getBestSeller() {
+    console.log('Called');
+    return this.orderService.getBestSeller(5);
+  }
 }

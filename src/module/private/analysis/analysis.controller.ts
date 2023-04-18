@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   UseFilters,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -43,5 +44,51 @@ export class AnalysisController {
   @Get('users/count')
   async countCustomer() {
     return this.analysisService.countCustomer();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('reservation/count')
+  async countReservation() {
+    return this.analysisService.countReservation();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('orders/bestseller')
+  async getBestseller(@Query() query: any) {
+    return this.analysisService.bestSeller(query.amount);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('users/lastest')
+  async getLastestCustomer(@Query() query: any) {
+    return this.analysisService.getLastestCustomer(query.amount);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('payment/income')
+  async getIncomeStatistic(@Query() query: any) {
+    console.log(query);
+    return this.analysisService.getIncomeStatistic(query.time);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('orders/category')
+  async getCategoryStatistic() {
+    return this.analysisService.getCategoryStatistic();
   }
 }

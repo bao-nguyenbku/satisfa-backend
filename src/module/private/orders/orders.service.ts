@@ -178,4 +178,67 @@ export class OrdersService {
       throw error;
     }
   }
+
+  async getBestSeller(amount?: number) {
+    try {
+      const bestSeller: any = this.orderModel.aggregate([
+        {
+          $unwind: {
+            path: '$items',
+          },
+        },
+        {
+          $group: {
+            _id: '$items.id',
+            name: {
+              $first: '$items.name',
+            },
+            image: {
+              $first: '$items.images',
+            },
+            totalSold: {
+              $sum: '$items.qty',
+            },
+          },
+        },
+        {
+          $sort: {
+            totalSold: -1,
+          },
+        },
+        {
+          $limit: 4,
+        },
+      ]);
+      return bestSeller;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCategoryStatistic() {
+    try {
+      const categoryStatistic = this.orderModel.aggregate([
+        {
+          $unwind: {
+            path: '$items',
+          },
+        },
+        {
+          $group: {
+            _id: '$items.category',
+            name: {
+              $first: '$items.category',
+            },
+            totalSold: {
+              $sum: '$items.qty',
+            },
+          },
+        },
+      ]);
+      return transformResult(categoryStatistic);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -87,4 +87,16 @@ export class UsersService {
       throw error;
     }
   }
+  async getLastestCustomer(amount?: any): Promise<UserDataDto[]> {
+    try {
+      const userList = await this.userModel
+        .find({ role: Role.USER })
+        .select(['-password'])
+        .limit(4)
+        .lean();
+      return transformResult(userList) as UserDataDto[];
+    } catch (error) {
+      throw error;
+    }
+  }
 }

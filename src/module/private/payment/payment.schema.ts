@@ -20,7 +20,7 @@ export class PaymentCash {
   @IsNumber()
   totalCost: number;
 }
-@Schema()
+@Schema({ timestamps: true })
 export class Payment {
   @Prop({
     required: true,

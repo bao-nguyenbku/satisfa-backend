@@ -29,7 +29,7 @@ export class ReservationService {
     private readonly tableService: TableService,
     private readonly userService: UsersService,
   ) {}
-  async findByFilter(filter: ReservationFilter) {
+  async findByFilter(filter?: ReservationFilter) {
     try {
       if (_.isEmpty(filter)) {
         const result = await this.reservationModel
@@ -206,6 +206,15 @@ export class ReservationService {
         'Some thing went wrong while delete reservation',
         HttpStatus.BAD_REQUEST,
       );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async countReservations(): Promise<number> {
+    try {
+      const reservations = await this.reservationModel.countDocuments();
+      return reservations;
     } catch (error) {
       throw error;
     }

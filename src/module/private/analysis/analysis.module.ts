@@ -4,9 +4,17 @@ import { AnalysisService } from './analysis.service';
 import { AnalysisController } from './analysis.controller';
 import { UsersModule } from '~/module/common/users/user.module';
 import { OrdersModule } from '../orders/orders.module';
+import { ReservationModule } from '../reservations/reservation.module';
+import { PaymentModule } from '../payment/payment.module';
 
 @Module({
-  imports: [ConfigModule, OrdersModule, UsersModule],
+  imports: [
+    ConfigModule,
+    OrdersModule,
+    UsersModule,
+    ReservationModule,
+    PaymentModule,
+  ],
   controllers: [AnalysisController],
   providers: [AnalysisService],
 })
