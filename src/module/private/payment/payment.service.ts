@@ -30,7 +30,7 @@ export class PaymentService {
 
   async getIncomeStatistic(timeFilter?: string) {
     try {
-      console.log("timeFilter", timeFilter);
+      console.log('timeFilter', timeFilter);
       const date = new Date();
       console.log(date);
       const incomeList: any = this.paymentModel.aggregate([
@@ -50,7 +50,12 @@ export class PaymentService {
         },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            _id: {
+              $dateToString:
+                timeFilter == 'month'
+                  ? { format: '%Y-%m-%d', date: '$createdAt' }
+                  : { format: '%Y-%m', date: '$createdAt' },
+            },
             totalSaleAmount: { $sum: '$info.totalCost' },
             count: { $sum: 1 },
           },
