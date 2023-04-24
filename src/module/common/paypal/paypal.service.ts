@@ -1,15 +1,18 @@
 import * as paypal from 'paypal-rest-sdk';
 import { PaypalTransactions } from './paypal.interface';
-
-const firstConfig = {
-  mode: 'sandbox',
-  client_id:
-    'AT4fevhY114zql_rgzKoTw-9grpqrzH3ul6CXNnP5k-otXgC1QGaxtoTagkMshrt8RgJnh__rKfaJRNz',
-  client_secret:
-    'EKZMYpCiHVJ6dWaSLWZnse9cAVS4AO7HwHsdwpVcyufN_NNjUhGBjrXd8GxLxZ5_9Dm5PSPINwS-5tjd',
-};
+import { ConfigService } from '@nestjs/config';
 
 export class PaypalService {
+  config: {
+    mode: string;
+    client_id: string;
+    client_secret: string;
+  };
+  constructor(private readonly configService: ConfigService) {
+    this.config.client_id = configService.get<string>('paypalClientId');
+    this.config.mode = 'sandbox';
+    this.config.client_secret = configService.get<string>('paypalClientSecret');
+  }
   async create(paypalTracsactions: PaypalTransactions) {
     try {
       const create_payment_json = {
@@ -25,7 +28,7 @@ export class PaypalService {
       };
       paypal.payment.create(
         create_payment_json,
-        firstConfig,
+        this.config,
         function (error, payment) {
           if (error) {
             throw error;
