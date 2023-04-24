@@ -12,9 +12,8 @@ import {
 import { CreateTableDto } from './dto/create-table.dto';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateTableDto } from './dto/update-table.dto';
-import { TableService } from './table.service';
+import { TableService, TableFilter } from './table.service';
 // import { TableStatus } from './table.schema';
-import type { TableFilter } from './table.service';
 import * as _ from 'lodash';
 
 @Controller('tables')
@@ -30,6 +29,12 @@ export class TableController {
   @UseFilters(MongoExceptionFilter)
   async getTableById(@Param('id') id: string, @Query() filter: TableFilter) {
     return this.tableService.findById(id, filter);
+  }
+
+  @Get()
+  @UseFilters(MongoExceptionFilter)
+  async getTableByFilter(@Query() filter: TableFilter) {
+    return this.tableService.findAllByFilter(filter);
   }
 
   @Post('create')

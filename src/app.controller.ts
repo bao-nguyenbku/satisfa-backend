@@ -13,6 +13,6 @@ export class AppController {
   @Get('healthcheck')
   async checkServer(@Req() req: Request, @Res() res: Response) {
     const fullUrl = `${req.protocol}://${req.get('Host')}${req.originalUrl}`;
-    res.send(`<h2>Server is running at ${fullUrl}</h2>`);
+    res.send(`Server is running at ${fullUrl}`);
   }
 }

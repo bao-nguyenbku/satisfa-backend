@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './utils/all-exception.filter';
@@ -11,10 +12,16 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      enableDebugMessages: true,
+      disableErrorMessages: false,
+    }),
+  );
   const config = new DocumentBuilder()
     .setTitle('Satisfa API Documentation')
     .setDescription('')
-    .setVersion('1.0')
+    .setVersion('Beta')
     .addTag('')
     .build();
   const document = SwaggerModule.createDocument(app, config);

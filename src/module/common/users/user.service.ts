@@ -21,13 +21,8 @@ export class UsersService {
     try {
       if (mongoose.Types.ObjectId.isValid(id)) {
         const user = await this.userModel.findById(id).lean();
-        // TODO Handle case product null;
         if (user) {
-          const { _id, __v, ...rest } = user;
-          return {
-            id: _id,
-            ...rest,
-          };
+          return transformResult(user);
         }
         return null;
       } else {
@@ -78,6 +73,28 @@ export class UsersService {
         .then((result) =>
           _.omit(result.toObject(), ['_id', '__v', 'role', 'password']),
         );
+    } catch (error) {
+      throw error;
+    }
+  }
+  async countCustomer(): Promise<number> {
+    try {
+      const customers = await this.userModel.countDocuments({
+        role: Role.USER,
+      });
+      return customers;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getLastestCustomer(amount?: any): Promise<UserDataDto[]> {
+    try {
+      const userList = await this.userModel
+        .find({ role: Role.USER })
+        .select(['-password'])
+        .limit(4)
+        .lean();
+      return transformResult(userList) as UserDataDto[];
     } catch (error) {
       throw error;
     }

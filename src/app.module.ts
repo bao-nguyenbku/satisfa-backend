@@ -14,6 +14,9 @@ import { UploadModule } from '~/module/private/uploads/upload.module';
 import { CategoryModule } from '~/module/private/categories/category.module';
 import { OrdersModule } from './module/private/orders/orders.module';
 import { AppController } from './app.controller';
+import { PaymentModule } from './module/private/payment/payment.module';
+import { MomoModule } from './module/common/momo/momo.module';
+import { AnalysisModule } from './module/private/analysis/analysis.module';
 
 @Module({
   imports: [
@@ -33,7 +36,10 @@ import { AppController } from './app.controller';
     TableModule,
     CategoryModule,
     ReservationModule,
+    AnalysisModule,
     OrdersModule,
+    PaymentModule,
+    MomoModule,
   ],
   controllers: [AppController],
 })

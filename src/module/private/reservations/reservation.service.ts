@@ -29,7 +29,7 @@ export class ReservationService {
     private readonly tableService: TableService,
     private readonly userService: UsersService,
   ) {}
-  async findByFilter(filter: ReservationFilter) {
+  async findByFilter(filter?: ReservationFilter) {
     try {
       if (_.isEmpty(filter)) {
         const result = await this.reservationModel
@@ -39,8 +39,24 @@ export class ReservationService {
           .lean();
         return transformResult(result);
       }
-      const { date } = filter;
-      const result = await this.reservationModel.find({ date }).lean();
+      const { date, user } = filter;
+      const currentDate = new Date().toISOString();
+      const endDate = '2099 08 18';
+      if (user) {
+        const result = await this.reservationModel
+          .find({
+            date: {
+              $gte: currentDate,
+              $lte: endDate,
+            },
+            customerId: user,
+          })
+          .populate('tableId')
+          .lean();
+        return transformResult(result);
+      }
+
+      const result = await this.reservationModel.find({ date });
       return transformResult(result);
     } catch (error) {
       throw error;
@@ -53,11 +69,7 @@ export class ReservationService {
         const reservation = await this.reservationModel.findById(id).lean();
         // TODO Handle case product null;
         if (reservation) {
-          const { _id, __v, ...rest } = reservation;
-          return {
-            id: _id,
-            ...rest,
-          };
+          return transformResult(reservation);
         }
         return null;
       } else {
@@ -100,11 +112,13 @@ export class ReservationService {
         isAvailable = true;
         console.log('Empty');
         reservations = [...checkingTable.reservations, createdReservation];
-      } else if (
+      }
+      // Smaller than
+      else if (
         dayjs(createReservationData.date).diff(
           dayjs(checkingTable.reservations[0].date),
           'second',
-        ) <= GAP_BETWEEN_RESERVATIONS
+        ) < GAP_BETWEEN_RESERVATIONS
       ) {
         console.log('Smaller than');
         const createdReservation = await this.noValidateCreate(
@@ -112,14 +126,16 @@ export class ReservationService {
         );
         isAvailable = true;
         reservations = [createdReservation, ...checkingTable.reservations];
-      } else if (
+      }
+      // Greater than
+      else if (
         dayjs(createReservationData.date).diff(
           dayjs(
             checkingTable.reservations[checkingTable.reservations.length - 1]
               .date,
           ),
           'second',
-        ) >= GAP_BETWEEN_RESERVATIONS
+        ) > GAP_BETWEEN_RESERVATIONS
       ) {
         console.log('Greater than');
         const createdReservation = await this.noValidateCreate(
@@ -127,7 +143,9 @@ export class ReservationService {
         );
         isAvailable = true;
         reservations = [...checkingTable.reservations, createdReservation];
-      } else {
+      }
+      // Between
+      else {
         for (let idx = 0; idx < checkingTable.reservations.length - 1; idx++) {
           if (
             dayjs(checkingTable.reservations[idx].date).diff(
@@ -188,6 +206,15 @@ export class ReservationService {
         'Some thing went wrong while delete reservation',
         HttpStatus.BAD_REQUEST,
       );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async countReservations(): Promise<number> {
+    try {
+      const reservations = await this.reservationModel.countDocuments();
+      return reservations;
     } catch (error) {
       throw error;
     }

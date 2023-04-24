@@ -35,7 +35,7 @@ import { UsersModule } from '~/module/common/users/user.module';
     TableModule,
     UsersModule,
   ],
-
+  exports: [ReservationService],
   providers: [ReservationService, TableService],
   controllers: [ReservationController],
 })
