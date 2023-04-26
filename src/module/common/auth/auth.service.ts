@@ -10,6 +10,7 @@ import { HashService } from '~/module/common/users/hash.service';
 import { JwtPayload } from './auth.interface';
 import { User } from '../users/user.schema';
 import { Role } from '~/constants/role.enum';
+import { CreateGoogleUserDto } from '../users/dto/create-google-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,6 +37,38 @@ export class AuthService {
     delete result.password;
     return result;
   }
+
+  async signinWithGoogle(
+    googleUser: CreateGoogleUserDto,
+  ): Promise<{ accessToken: string }> {
+    try {
+      const existedEmail = await this.usersService.findByEmail(
+        googleUser.email,
+      );
+      if (existedEmail) {
+        return this.login({
+          id: existedEmail.id,
+          email: existedEmail.email,
+          role: existedEmail.role,
+        });
+      }
+      const createdUser = await this.usersService.create({
+        ...googleUser,
+        password: '',
+        role: Role.USER,
+      });
+      if (createdUser) {
+        return this.login({
+          id: createdUser.id,
+          email: createdUser.email,
+          role: Role.USER,
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async adminLogin(user: any) {
     if (user && user.role === Role.ADMIN) {
       const payload: JwtPayload = {
@@ -48,11 +81,11 @@ export class AuthService {
       };
     }
   }
-  async login(user: any) {
+  async login(user: any): Promise<{ accessToken: string }> {
     const payload: JwtPayload = {
       email: user.email,
-      id: user._id,
-      role: user.role,
+      id: user._id || user.id,
+      role: user.role || Role.USER,
     };
     return {
       accessToken: this.jwtService.sign(payload),

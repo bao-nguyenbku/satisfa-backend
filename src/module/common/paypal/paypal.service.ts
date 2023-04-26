@@ -32,10 +32,9 @@ export class PaypalService {
         function (error, payment) {
           if (error) {
             throw error;
-          } else {
-            console.log('Create Payment Response');
-            console.log(payment);
           }
+          console.log('Create Payment Response');
+          console.log(payment);
         },
       );
     } catch (error) {
