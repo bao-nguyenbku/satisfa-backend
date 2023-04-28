@@ -30,9 +30,7 @@ export class PaymentService {
 
   async getIncomeStatistic(timeFilter?: string) {
     try {
-      console.log('timeFilter', timeFilter);
       const date = new Date();
-      console.log(date);
       const incomeList: any = this.paymentModel.aggregate([
         {
           $match: {
@@ -66,7 +64,6 @@ export class PaymentService {
           },
         },
       ]);
-      console.log(transformResult(incomeList));
       return transformResult(incomeList);
     } catch (error) {}
   }

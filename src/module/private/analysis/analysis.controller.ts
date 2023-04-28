@@ -79,7 +79,6 @@ export class AnalysisController {
   @UseFilters(MongoExceptionFilter)
   @Get('payment/income')
   async getIncomeStatistic(@Query() query: any) {
-    console.log(query);
     return this.analysisService.getIncomeStatistic(query.time);
   }
 

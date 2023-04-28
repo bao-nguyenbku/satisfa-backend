@@ -33,7 +33,6 @@ export class PaypalService {
           if (error) {
             throw error;
           }
-          console.log('Create Payment Response');
           console.log(payment);
         },
       );

@@ -21,7 +21,6 @@ export class TableService {
 
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
     const { minSeat, reservationDate } = filter;
-    console.log(filter);
     let filterObj = {};
     try {
       if (!_.isEmpty(minSeat)) {

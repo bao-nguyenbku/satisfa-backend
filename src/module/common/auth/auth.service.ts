@@ -71,24 +71,22 @@ export class AuthService {
 
   async adminLogin(user: any) {
     if (user && user.role === Role.ADMIN) {
-      const payload: JwtPayload = {
-        email: user.email,
-        id: user._id,
-        role: user.role,
-      };
       return {
-        accessToken: this.jwtService.sign(payload),
+        accessToken: this.generateAccessToken(user),
       };
     }
   }
-  async login(user: any): Promise<{ accessToken: string }> {
+  generateAccessToken(data: any) {
     const payload: JwtPayload = {
-      email: user.email,
-      id: user._id || user.id,
-      role: user.role || Role.USER,
+      email: data.email || '',
+      id: data._id || data.id || '',
+      role: data.role || Role.USER,
     };
+    return this.jwtService.sign(payload);
+  }
+  async login(user: any): Promise<{ accessToken: string }> {
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken: this.generateAccessToken(user),
     };
   }
 }
