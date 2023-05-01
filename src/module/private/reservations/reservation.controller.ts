@@ -44,6 +44,9 @@ export class ReservationController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
   async updateTable(
     @Param('id') id: string,
     @Body() updateReservationData: UpdateReservationDto,
@@ -52,6 +55,9 @@ export class ReservationController {
   }
 
   @Delete(':id/:tableId')
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
   async delete(@Param('id') id: string, @Param('tableId') tableId: string) {
     return this.reservationService.delete(id, tableId);
   }

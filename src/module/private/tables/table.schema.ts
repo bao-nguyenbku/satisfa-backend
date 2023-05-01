@@ -9,10 +9,7 @@ export enum TableStatus {
   RESERVED = 'RESERVED',
 }
 @Schema({
-  timestamps: {
-    createdAt: 'createdAt',
-    updatedAt: 'lastUpdate',
-  },
+  timestamps: true,
 })
 export class Table {
   @Prop({ required: true, unique: true })
@@ -34,7 +31,13 @@ export class Table {
   createdAt: string;
 
   @Prop()
-  lastUpdate: string;
+  updatedAt: string;
+
+  @Prop({
+    required: true,
+    default: true,
+  })
+  visible: boolean;
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);
