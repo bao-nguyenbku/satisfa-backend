@@ -96,7 +96,7 @@ export class AnalysisController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   @Get('reviews/feedbacks')
-  async calculateFoodQuality() {
-    return this.analysisService.calculateFoodQuality();
+  async calculateRatingQuality() {
+    return this.analysisService.calculateRatingQuality();
   }
 }

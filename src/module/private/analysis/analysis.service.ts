@@ -112,7 +112,7 @@ export class AnalysisService {
     }
   }
 
-  async calculateFoodQuality() {
+  async calculateRatingQuality() {
     try {
       const result = await this.reviewsService.findAll();
       const foodRatingResult = result.filter((item) => item.foodRating !== 0);
@@ -120,58 +120,70 @@ export class AnalysisService {
         (item) => item.serviceRating !== 0,
       );
 
-      return [
-        {
-          title: 'Food Quality',
-          overall:
-            foodRatingResult.reduce((prev, curr) => prev + curr.foodRating, 0) /
-            foodRatingResult.length,
-          totalRating: foodRatingResult.length,
-          distribution: {
-            1: countFrequencyOfReviewStar(foodRatingResult, 1, 'foodRating'),
-            2: countFrequencyOfReviewStar(foodRatingResult, 2, 'foodRating'),
-            3: countFrequencyOfReviewStar(foodRatingResult, 3, 'foodRating'),
-            4: countFrequencyOfReviewStar(foodRatingResult, 4, 'foodRating'),
-            5: countFrequencyOfReviewStar(foodRatingResult, 5, 'foodRating'),
-          },
-        },
-        {
-          title: 'Service Quality',
-          overall:
+      return {
+        overallRating:
+          (foodRatingResult.reduce((prev, curr) => prev + curr.foodRating, 0) +
             serviceRatingResult.reduce(
               (prev, curr) => prev + curr.serviceRating,
               0,
-            ) / serviceRatingResult.length,
-          totalRating: serviceRatingResult.length,
-          distribution: {
-            1: countFrequencyOfReviewStar(
-              serviceRatingResult,
-              1,
-              'serviceRating',
-            ),
-            2: countFrequencyOfReviewStar(
-              serviceRatingResult,
-              2,
-              'serviceRating',
-            ),
-            3: countFrequencyOfReviewStar(
-              serviceRatingResult,
-              3,
-              'serviceRating',
-            ),
-            4: countFrequencyOfReviewStar(
-              serviceRatingResult,
-              4,
-              'serviceRating',
-            ),
-            5: countFrequencyOfReviewStar(
-              serviceRatingResult,
-              5,
-              'serviceRating',
-            ),
+            )) /
+          (foodRatingResult.length + serviceRatingResult.length),
+        totalReview: result.length,
+        data: [
+          {
+            title: 'Food Quality',
+            overall:
+              foodRatingResult.reduce(
+                (prev, curr) => prev + curr.foodRating,
+                0,
+              ) / foodRatingResult.length,
+            totalRating: foodRatingResult.length,
+            distribution: {
+              1: countFrequencyOfReviewStar(foodRatingResult, 1, 'foodRating'),
+              2: countFrequencyOfReviewStar(foodRatingResult, 2, 'foodRating'),
+              3: countFrequencyOfReviewStar(foodRatingResult, 3, 'foodRating'),
+              4: countFrequencyOfReviewStar(foodRatingResult, 4, 'foodRating'),
+              5: countFrequencyOfReviewStar(foodRatingResult, 5, 'foodRating'),
+            },
           },
-        },
-      ];
+          {
+            title: 'Service Quality',
+            overall:
+              serviceRatingResult.reduce(
+                (prev, curr) => prev + curr.serviceRating,
+                0,
+              ) / serviceRatingResult.length,
+            totalRating: serviceRatingResult.length,
+            distribution: {
+              1: countFrequencyOfReviewStar(
+                serviceRatingResult,
+                1,
+                'serviceRating',
+              ),
+              2: countFrequencyOfReviewStar(
+                serviceRatingResult,
+                2,
+                'serviceRating',
+              ),
+              3: countFrequencyOfReviewStar(
+                serviceRatingResult,
+                3,
+                'serviceRating',
+              ),
+              4: countFrequencyOfReviewStar(
+                serviceRatingResult,
+                4,
+                'serviceRating',
+              ),
+              5: countFrequencyOfReviewStar(
+                serviceRatingResult,
+                5,
+                'serviceRating',
+              ),
+            },
+          },
+        ],
+      };
     } catch (error) {
       throw error;
     }
