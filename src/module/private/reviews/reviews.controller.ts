@@ -32,14 +32,10 @@ export class ReviewsController {
   @Get('')
   @UseFilters(MongoExceptionFilter)
   async findAllReview(@Query() filter: ReviewFilter) {
-    console.log(
-      '🚀 ~ file: reviews.controller.ts:35 ~ ReviewsController ~ findAllReview ~ filter:',
-      filter,
-    );
     return this.reviewService.findAll(filter);
   }
 
-  async FindReviewById() {
+  async findReviewById() {
     return this.reviewService.findById();
   }
 }

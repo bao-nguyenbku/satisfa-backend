@@ -41,3 +41,11 @@ export function generateOrderId(): string {
 export const generateId = (): string => {
   return uuidv4();
 };
+
+export function countFrequencyOfReviewStar<T>(
+  arr: Array<T>,
+  countValue: any,
+  key: keyof T,
+): number {
+  return arr.filter((item) => item[key] === countValue).length;
+}

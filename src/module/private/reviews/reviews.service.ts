@@ -20,8 +20,12 @@ export class ReviewsService {
     }
   }
 
-  async findAll(filter: ReviewFilter) {
-    const { limit } = filter;
+  async findAll(filter?: ReviewFilter): Promise<Review[]> {
+    const { limit } = filter
+      ? filter
+      : {
+          limit: undefined,
+        };
     try {
       const result = await this.reviewModel
         .find()

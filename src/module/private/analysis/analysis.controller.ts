@@ -90,4 +90,13 @@ export class AnalysisController {
   async getCategoryStatistic() {
     return this.analysisService.getCategoryStatistic();
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('reviews/feedbacks')
+  async calculateFoodQuality() {
+    return this.analysisService.calculateFoodQuality();
+  }
 }
