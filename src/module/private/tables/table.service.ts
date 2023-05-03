@@ -109,7 +109,7 @@ export class TableService {
   async create(createTableData: CreateTableDto) {
     try {
       const tableData = new this.tableModel(createTableData);
-      return tableData.save();
+      return transformResult((await tableData.save()).toObject());
     } catch (error) {
       throw error;
     }

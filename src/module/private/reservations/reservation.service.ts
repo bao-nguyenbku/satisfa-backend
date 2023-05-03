@@ -118,9 +118,12 @@ export class ReservationService {
         dayjs(createReservationData.date).diff(
           dayjs(checkingTable.reservations[0].date),
           'second',
-        ) < GAP_BETWEEN_RESERVATIONS
+        ) <
+        -1 * GAP_BETWEEN_RESERVATIONS
       ) {
-        console.log('Smaller than');
+        console.error(
+          `${createReservationData.date} smaller than ${checkingTable.reservations[0].date}`,
+        );
         const createdReservation = await this.noValidateCreate(
           createReservationData,
         );
@@ -137,7 +140,12 @@ export class ReservationService {
           'second',
         ) > GAP_BETWEEN_RESERVATIONS
       ) {
-        console.log('Greater than');
+        console.error(
+          `${createReservationData.date} is greater than ${
+            checkingTable.reservations[checkingTable.reservations.length - 1]
+              .date
+          }`,
+        );
         const createdReservation = await this.noValidateCreate(
           createReservationData,
         );
@@ -151,13 +159,18 @@ export class ReservationService {
             dayjs(checkingTable.reservations[idx].date).diff(
               dayjs(createReservationData.date),
               'second',
-            ) < GAP_BETWEEN_RESERVATIONS &&
+            ) <
+              -1 * GAP_BETWEEN_RESERVATIONS &&
             dayjs(checkingTable.reservations[idx + 1].date).diff(
               dayjs(createReservationData.date),
               'second',
             ) > GAP_BETWEEN_RESERVATIONS
           ) {
-            console.log('Between');
+            console.log(
+              `${createReservationData.date} is between ${
+                checkingTable.reservations[idx].date
+              } and ${checkingTable.reservations[idx + 1].date}`,
+            );
             isAvailable = true;
             reservations = [...checkingTable.reservations];
             reservations.splice(idx + 1, 0, createReservationData as any);
