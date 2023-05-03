@@ -114,11 +114,14 @@ export class TableService {
 
   async update(id: string, updateTableData: UpdateTableDto) {
     try {
+      console.log('id', id);
+      console.log('update table', updateTableData);
       const updated = await this.tableModel.updateOne(
         { _id: id },
         updateTableData,
         { runValidators: true },
       );
+      console.log('updated', updated);
       return updated;
     } catch (error) {
       throw error;

@@ -108,4 +108,13 @@ export class AnalysisService {
       throw error;
     }
   }
+
+  async getTotalpayByUser() {
+    try {
+      const userList = await this.orderService.getTotalpayByUser();
+      return userList;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -91,4 +91,13 @@ export class AnalysisController {
   async getCategoryStatistic() {
     return this.analysisService.getCategoryStatistic();
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  @Get('orders/paybyuser')
+  async getTotalpayByUser() {
+    return this.analysisService.getTotalpayByUser();
+  }
 }
