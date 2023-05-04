@@ -112,6 +112,16 @@ export class AnalysisService {
     }
   }
 
+
+  async getTotalpayByUser() {
+    try {
+      const userList = await this.orderService.getTotalpayByUser();
+      return userList;
+     } catch(error) {
+      throw error;
+     }
+ }
+
   async calculateRatingQuality() {
     try {
       const result = await this.reviewsService.findAll();
@@ -184,7 +194,8 @@ export class AnalysisService {
           },
         ],
       };
-    } catch (error) {
+    } 
+    catch (error) {
       throw error;
     }
   }

@@ -95,8 +95,13 @@ export class AnalysisController {
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
+  @Get('orders/paybyuser')
+  async getTotalpayByUser() {
+    return this.analysisService.getTotalpayByUser();
+    
   @Get('reviews/feedbacks')
   async calculateRatingQuality() {
     return this.analysisService.calculateRatingQuality();
+
   }
 }

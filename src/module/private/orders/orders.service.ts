@@ -18,11 +18,13 @@ import { PaymentService } from '../payment/payment.service';
 import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
+import { User, UserDocument } from '~/module/common/users/user.schema';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly reservationService: ReservationService,
     private readonly paymentService: PaymentService,
   ) {}
@@ -198,6 +200,9 @@ export class OrdersService {
             totalSold: {
               $sum: '$items.qty',
             },
+            // percent: {
+            //   $
+            // }
           },
         },
         {
@@ -236,6 +241,44 @@ export class OrdersService {
         },
       ]);
       return transformResult(categoryStatistic);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTotalpayByUser() {
+    try {
+      const userList = this.orderModel.aggregate([
+        {
+          $match: {
+            paymentStatus: 'PAID',
+          },
+        },
+        {
+          $group: {
+            _id: '$customerId',
+            totalPay: {
+              $sum: '$totalCost',
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $project: {
+            fullname: '$user.fullname',
+            totalPay: '$totalPay',
+            avatar: '$user.avatar',
+          },
+        },
+      ]);
+      return userList;
     } catch (error) {
       throw error;
     }
