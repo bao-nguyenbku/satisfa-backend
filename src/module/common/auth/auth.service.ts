@@ -10,6 +10,7 @@ import { HashService } from '~/module/common/users/hash.service';
 import { JwtPayload } from './auth.interface';
 import { User } from '../users/user.schema';
 import { Role } from '~/constants/role.enum';
+import { CreateGoogleUserDto } from '../users/dto/create-google-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,26 +37,56 @@ export class AuthService {
     delete result.password;
     return result;
   }
+
+  async signinWithGoogle(
+    googleUser: CreateGoogleUserDto,
+  ): Promise<{ accessToken: string }> {
+    try {
+      const existedEmail = await this.usersService.findByEmail(
+        googleUser.email,
+      );
+      if (existedEmail) {
+        return this.login({
+          id: existedEmail.id,
+          email: existedEmail.email,
+          role: existedEmail.role,
+        });
+      }
+      const createdUser = await this.usersService.create({
+        ...googleUser,
+        password: '',
+        role: Role.USER,
+      });
+      if (createdUser) {
+        return this.login({
+          id: createdUser.id,
+          email: createdUser.email,
+          role: Role.USER,
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async adminLogin(user: any) {
     if (user && user.role === Role.ADMIN) {
-      const payload: JwtPayload = {
-        email: user.email,
-        id: user._id,
-        role: user.role,
-      };
       return {
-        accessToken: this.jwtService.sign(payload),
+        accessToken: this.generateAccessToken(user),
       };
     }
   }
-  async login(user: any) {
+  generateAccessToken(data: any) {
     const payload: JwtPayload = {
-      email: user.email,
-      id: user._id,
-      role: user.role,
+      email: data.email || '',
+      id: data._id || data.id || '',
+      role: data.role || Role.USER,
     };
+    return this.jwtService.sign(payload);
+  }
+  async login(user: any): Promise<{ accessToken: string }> {
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken: this.generateAccessToken(user),
     };
   }
 }

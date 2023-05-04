@@ -9,6 +9,7 @@ import { UserDataDto } from './dto/response-user';
 import { transformResult } from '~/utils';
 import { Role } from '~/constants/role.enum';
 import * as _ from 'lodash';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -32,11 +33,15 @@ export class UsersService {
       throw error;
     }
   }
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<UserEntity> {
     try {
-      const existedEmail = await this.userModel.findOne({ email }).exec();
+      const existedEmail = await this.userModel.findOne({ email }).lean();
       if (existedEmail) {
-        return existedEmail.toObject();
+        return transformResult({
+          ...existedEmail,
+          id: existedEmail._id.toString(),
+          role: existedEmail.role as Role,
+        });
       }
     } catch (error) {
       throw error;
@@ -67,12 +72,10 @@ export class UsersService {
         ...createUserDto,
         password: hashedPassword,
       };
-      const createdUser = new this.userModel(newUser);
-      return createdUser
-        .save()
-        .then((result) =>
-          _.omit(result.toObject(), ['_id', '__v', 'role', 'password']),
-        );
+      const createdUser = await new this.userModel(newUser).save();
+      return transformResult(
+        _.omit(createdUser.toObject(), ['_id', '__v', 'role', 'password']),
+      );
     } catch (error) {
       throw error;
     }

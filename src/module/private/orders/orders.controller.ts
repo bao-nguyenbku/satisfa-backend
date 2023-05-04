@@ -74,7 +74,6 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async getOrderAmount() {
-    console.log('Called');
     return this.orderService.getOrderAmount();
   }
 
@@ -84,7 +83,6 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async getBestSeller() {
-    console.log('Called');
     return this.orderService.getBestSeller(5);
   }
 }

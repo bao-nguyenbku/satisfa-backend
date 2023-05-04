@@ -146,7 +146,6 @@ export class OrdersService {
       if (_.isEmpty(existedOrder)) {
         return;
       }
-      console.log('paymentdata: ', paymentData);
       const payData: CreatePaymentDto = {
         type: paymentData.type,
         info: paymentData.info as PaymentCash,
