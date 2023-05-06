@@ -17,9 +17,8 @@ import { AppController } from './app.controller';
 import { PaymentModule } from './module/private/payment/payment.module';
 import { MomoModule } from './module/common/momo/momo.module';
 import { AnalysisModule } from './module/private/analysis/analysis.module';
-import { ReviewsController } from './module/private/reviews/reviews.controller';
-import { ReviewsService } from './module/private/reviews/reviews.service';
 import { ReviewsModule } from './module/private/reviews/reviews.module';
+import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -44,6 +43,7 @@ import { ReviewsModule } from './module/private/reviews/reviews.module';
     PaymentModule,
     MomoModule,
     ReviewsModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
 })

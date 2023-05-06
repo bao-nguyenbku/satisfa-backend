@@ -13,39 +13,33 @@ import {
 import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'fs';
-import { diskStorage } from 'multer';
 import { join } from 'path';
 import * as fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common/exceptions';
+import { NotFoundException } from '@nestjs/common/exceptions';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Controller('uploads')
 export class UploadController {
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const filename: string = uuidv4();
-          const extension = file.mimetype.split('/').at(-1);
+    FileInterceptor(
+      'file',
+      // {
+      //   storage: diskStorage({
+      //     destination: './uploads',
+      //     filename: (req, file, cb) => {
+      //       const filename: string = uuidv4();
+      //       const extension = file.mimetype.split('/').at(-1);
 
-          cb(null, `${filename}.${extension}`);
-        },
-      }),
-    }),
+      //       cb(null, `${filename}.${extension}`);
+      //     },
+      //   }),
+      // }
+    ),
   )
   @Post()
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
-    const fullUrl = `${req.protocol}://${req.get('Host')}${req.originalUrl}`;
-    if (file) {
-      return {
-        url: `${fullUrl}/${file.filename}`,
-      };
-    }
-    throw new BadRequestException('This is invalid file! Try again');
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.cloudinaryService.uploadFile(file);
   }
 
   @Get(':fileId')
