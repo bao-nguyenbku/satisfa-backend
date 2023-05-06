@@ -26,16 +26,11 @@ export class PaypalService {
         },
         transactions: [paypalTracsactions],
       };
-      paypal.payment.create(
-        create_payment_json,
-        this.config,
-        function (error, payment) {
-          if (error) {
-            throw error;
-          }
-          console.log(payment);
-        },
-      );
+      paypal.payment.create(create_payment_json, this.config, function (error) {
+        if (error) {
+          throw error;
+        }
+      });
     } catch (error) {
       throw error;
     }

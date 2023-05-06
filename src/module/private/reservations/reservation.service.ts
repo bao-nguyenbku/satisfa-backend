@@ -89,12 +89,10 @@ export class ReservationService {
   }
   async create(createReservationData: CreateReservationDto) {
     try {
-      console.log('stop here 0');
       // Need to check for table id and user id valid or not
       const checkingTable = await this.tableService.findOriginalById(
         createReservationData.tableId,
       );
-      console.log('stop here');
       const user = await this.userService.findById(
         createReservationData.customerId,
       );
