@@ -6,6 +6,7 @@ import { UsersModule } from '~/module/common/users/user.module';
 import { OrdersModule } from '../orders/orders.module';
 import { ReservationModule } from '../reservations/reservation.module';
 import { PaymentModule } from '../payment/payment.module';
+import { ReviewsModule } from '../reviews/reviews.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PaymentModule } from '../payment/payment.module';
     UsersModule,
     ReservationModule,
     PaymentModule,
+    ReviewsModule,
   ],
   controllers: [AnalysisController],
   providers: [AnalysisService],

@@ -17,6 +17,7 @@ import { ReservationService } from '../reservations/reservation.service';
 import { TableService } from '../tables/table.service';
 import { PaymentModule } from '../payment/payment.module';
 import { PaymentService } from '../payment/payment.service';
+import { User, UserSchema } from '~/module/common/users/user.schema';
 
 @Module({
   imports: [
@@ -37,12 +38,17 @@ import { PaymentService } from '../payment/payment.service';
         name: Payment.name,
         schema: PaymentSchema,
       },
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
     ]),
     ConfigModule,
     UsersModule,
     TableModule,
     ReservationModule,
     PaymentModule,
+    UsersModule,
   ],
   exports: [OrdersService, MongooseModule],
   controllers: [OrdersController],
