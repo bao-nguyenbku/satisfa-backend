@@ -12,5 +12,7 @@ export default () => ({
       99: 'uninitialized',
     },
   },
+  paypalClientId: process.env.PAYPAL_CLIENT_ID,
+  paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
   bcryptSaltRounds: 10,
 });

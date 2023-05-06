@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CreateUserDto } from '~/module/common/users/dto/create-user';
 import { UsersService } from '~/module/common/users/user.service';
+import { CreateGoogleUserDto } from '../users/dto/create-google-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +35,11 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUser: CreateUserDto) {
     return this.userService.create(createUser);
+  }
+
+  @Post('google')
+  async signinWithGoogle(@Body() googleUser: CreateGoogleUserDto) {
+    return this.authService.signinWithGoogle(googleUser);
   }
 
   @UseGuards(JwtAuthGuard)

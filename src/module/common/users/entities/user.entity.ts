@@ -17,4 +17,10 @@ export class UserEntity {
 
   @ApiProperty({ required: true })
   role: Role;
+
+  @ApiProperty({ required: true })
+  avatar: string;
+
+  @ApiProperty({ required: false })
+  phone: string;
 }

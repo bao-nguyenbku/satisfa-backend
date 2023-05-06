@@ -1,4 +1,8 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CreateTableDto } from './dto/create-table.dto';
@@ -21,7 +25,6 @@ export class TableService {
 
   async findAllByFilter(filter: TableFilter): Promise<Table[]> {
     const { minSeat, reservationDate } = filter;
-    console.log(filter);
     let filterObj = {};
     try {
       if (!_.isEmpty(minSeat)) {
@@ -106,7 +109,7 @@ export class TableService {
   async create(createTableData: CreateTableDto) {
     try {
       const tableData = new this.tableModel(createTableData);
-      return tableData.save();
+      return transformResult((await tableData.save()).toObject());
     } catch (error) {
       throw error;
     }
@@ -151,26 +154,46 @@ export class TableService {
           path: 'reservations',
         })
         .lean();
-      if (existedTable) {
-        const cloneReservations = [...existedTable.reservations];
-        const idx = cloneReservations.findIndex(
-          (reserved) => reserved._id.toString() === reservationId,
-        );
-        if (idx !== -1) {
-          cloneReservations.splice(idx, 1);
-          return this.tableModel.findByIdAndUpdate(tableId, {
-            reservations: cloneReservations,
-          });
-        }
+      if (!existedTable) {
+        return;
       }
+
+      const cloneReservations = [...existedTable.reservations];
+      const idx = cloneReservations.findIndex(
+        (reserved) => reserved._id.toString() === reservationId,
+      );
+      if (idx !== -1) {
+        cloneReservations.splice(idx, 1);
+        return this.tableModel.findByIdAndUpdate(tableId, {
+          reservations: cloneReservations,
+        });
+      }
+
       return null;
     } catch (error) {
+      const jsonError = error?.toJSON();
+      if (jsonError.path === '_id' && jsonError.kind === 'ObjectId') {
+        throw new BadRequestException('Invalid table id');
+      }
       throw error;
     }
   }
   async delete(id: string): Promise<Table> {
     try {
-      return this.tableModel.findByIdAndDelete(id).exec();
+      const response = await this.tableModel.findOneAndDelete(
+        {
+          _id: id,
+        },
+        {
+          $where: 'this.reservations.length === 0',
+        },
+      );
+      if (!response) {
+        throw new NotAcceptableException(
+          'This table is currently in reservation',
+        );
+      }
+      return response;
     } catch (error) {
       throw error;
     }

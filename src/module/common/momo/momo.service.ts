@@ -28,7 +28,6 @@ export class MomoService {
         createData.requestId +
         '&requestType=' +
         createData.requestType;
-      console.log('assd');
       const signature = crypto
         .createHmac('sha256', createData.secretKey)
         .update(rawSignature)
