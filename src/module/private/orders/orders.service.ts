@@ -29,11 +29,18 @@ export class OrdersService {
     private readonly paymentService: PaymentService,
   ) {}
   async findByFilter(filter?: OrderFilterDto) {
-    let filterObj = {};
+    console.log(
+      '🚀 ~ file: orders.service.ts:32 ~ OrdersService ~ findByFilter ~ filter:',
+      filter,
+    );
+    const filterObj = {};
     if (!_.isEmpty(filter)) {
-      filterObj = {
-        status: filter.status,
-      };
+      if (_.has(filter, 'status')) {
+        filterObj['status'] = filter.status;
+      }
+      if (_.has(filter, 'currentUser')) {
+        filterObj['customerId'] = filter.currentUser;
+      }
     }
     try {
       const result = await this.orderModel
@@ -107,11 +114,8 @@ export class OrdersService {
         const { tempCustomer } = createOrderData;
         if (
           !_.has(tempCustomer, 'name') ||
-          _.has(tempCustomer, 'phone') ||
-          _.has(tempCustomer, 'takingTime') ||
-          _.isEmpty(tempCustomer.name) ||
-          _.isEmpty(tempCustomer.phone) ||
-          _.isEmpty(tempCustomer.takingTime)
+          !_.has(tempCustomer, 'phone') ||
+          !_.has(tempCustomer, 'takingTime')
         ) {
           throw new BadRequestException('Takeaway information is required');
         }
@@ -152,12 +156,6 @@ export class OrdersService {
         orderId: id,
       };
       const createdPayment = await this.paymentService.create(payData);
-      // {
-      //   id: '733e16fc-b8b9-4682-8f52-5380eb1ae54c',
-      //   type: 'CASH',
-      //   info: { totalPay: 2000000, totalCost: 1600000 },
-      //   orderId: new ObjectId("6425893a090f7e07d2bcba09")
-      // }
 
       if (_.isEmpty(createdPayment)) {
         return;
