@@ -105,12 +105,17 @@ export class OrdersService {
           throw new BadRequestException('You must send takeaway information');
         }
         const { tempCustomer } = createOrderData;
+        console.log(createOrderData);
+        console.log(tempCustomer);
+        console.log(_.isEmpty(tempCustomer.name));
+        console.log(_.isNumber(tempCustomer.phone));
+        console.log(_.isEmpty(tempCustomer.takingTime));
         if (
           !_.has(tempCustomer, 'name') ||
-          _.has(tempCustomer, 'phone') ||
-          _.has(tempCustomer, 'takingTime') ||
+          !_.has(tempCustomer, 'phone') ||
+          !_.has(tempCustomer, 'takingTime') ||
           _.isEmpty(tempCustomer.name) ||
-          _.isEmpty(tempCustomer.phone) ||
+          // _.isNumber(tempCustomer.phone) ||
           _.isEmpty(tempCustomer.takingTime)
         ) {
           throw new BadRequestException('Takeaway information is required');
