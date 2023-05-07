@@ -59,6 +59,7 @@ export class ReservationService {
       const result = await this.reservationModel
         .find(filterObj)
         .populate('tableId')
+        .populate('customerId', 'fullname avatar')
         .lean();
       return transformResult(result);
     } catch (error) {

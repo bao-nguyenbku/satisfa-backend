@@ -30,25 +30,11 @@ export class ReservationController {
   @Get()
   @UseFilters(MongoExceptionFilter)
   @UseGuards(JwtAuthGuard)
-  async getAllReservationByFilter(@Query() filter: ReservationFilter) {
-    return this.reservationService.findByFilter(filter);
-  }
-
-  @Get('current-user')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.USER)
-  @UseFilters(MongoExceptionFilter)
-  async getAllReservationByCurrentUser(
+  async getAllReservationByFilter(
     @Query() filter: ReservationFilter,
     @Request() req,
   ) {
-    return this.reservationService.findByFilter(
-      {
-        ...filter,
-        currentUser: true,
-      },
-      req.user.id,
-    );
+    return this.reservationService.findByFilter(filter, req.user.id);
   }
 
   @Get(':id')
