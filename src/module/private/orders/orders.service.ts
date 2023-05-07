@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
   Scope,
-  Inject,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument, PaymentStatus } from './order.schema';
@@ -21,26 +20,23 @@ import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
 import { User, UserDocument } from '~/module/common/users/user.schema';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 
 @Injectable({ scope: Scope.REQUEST })
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @Inject(REQUEST) private request: Request,
     private readonly reservationService: ReservationService,
     private readonly paymentService: PaymentService,
   ) {}
-  async findByFilter(filter?: OrderFilterDto) {
+  async findByFilter(filter?: OrderFilterDto, userId?: string) {
     const filterObj = {};
     if (!_.isEmpty(filter)) {
       if (_.has(filter, 'status')) {
         filterObj['status'] = filter.status;
       }
       if (_.has(filter, 'currentUser') && filter.currentUser === true) {
-        filterObj['customerId'] = (this.request.user as any).id;
+        filterObj['customerId'] = userId ? userId : '';
       }
     }
     try {

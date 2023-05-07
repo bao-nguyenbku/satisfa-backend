@@ -33,8 +33,3 @@ export class Reservation {
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);
-
-export type ReservationFilter = {
-  date?: string;
-  user?: string;
-};

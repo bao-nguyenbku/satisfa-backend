@@ -9,6 +9,7 @@ import {
   Patch,
   Query,
   UsePipes,
+  Request,
   ValidationPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
@@ -40,11 +41,17 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @Roles(Role.USER)
   @UseFilters(MongoExceptionFilter)
-  async getAllOrderByCurrentUser(@Query() filter: OrderFilterDto) {
-    return this.orderService.findByFilter({
-      ...filter,
-      currentUser: true,
-    });
+  async getAllOrderByCurrentUser(
+    @Query() filter: OrderFilterDto,
+    @Request() req,
+  ) {
+    return this.orderService.findByFilter(
+      {
+        ...filter,
+        currentUser: true,
+      },
+      req.user.id,
+    );
   }
 
   @Get(':id')
