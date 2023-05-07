@@ -20,17 +20,31 @@ import { OrderFilterDto } from './dto/query-order.dto';
 import { PaidOrderDto } from './dto/paid-order.dto';
 import { Roles } from '~/module/common/auth/roles.decorator';
 import { Role } from '~/constants/role.enum';
+import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly orderService: OrdersService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(ValidationPipe)
+  @Roles(Role.ADMIN)
   @UseFilters(MongoExceptionFilter)
   async getAllOrder(@Query() filter: OrderFilterDto) {
     return this.orderService.findByFilter(filter);
+  }
+
+  @Get('current-user')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @Roles(Role.USER)
+  @UseFilters(MongoExceptionFilter)
+  async getAllOrderByCurrentUser(@Query() filter: OrderFilterDto) {
+    return this.orderService.findByFilter({
+      ...filter,
+      currentUser: true,
+    });
   }
 
   @Get(':id')

@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Scope,
+  Inject,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument, PaymentStatus } from './order.schema';
@@ -19,27 +21,26 @@ import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
 import { User, UserDocument } from '~/module/common/users/user.schema';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Inject(REQUEST) private request: Request,
     private readonly reservationService: ReservationService,
     private readonly paymentService: PaymentService,
   ) {}
   async findByFilter(filter?: OrderFilterDto) {
-    console.log(
-      '🚀 ~ file: orders.service.ts:32 ~ OrdersService ~ findByFilter ~ filter:',
-      filter,
-    );
     const filterObj = {};
     if (!_.isEmpty(filter)) {
       if (_.has(filter, 'status')) {
         filterObj['status'] = filter.status;
       }
-      if (_.has(filter, 'currentUser')) {
-        filterObj['customerId'] = filter.currentUser;
+      if (_.has(filter, 'currentUser') && filter.currentUser === true) {
+        filterObj['customerId'] = (this.request.user as any).id;
       }
     }
     try {

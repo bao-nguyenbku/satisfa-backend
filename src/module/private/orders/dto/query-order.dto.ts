@@ -1,12 +1,12 @@
 import { OrderStatus } from '../order.schema';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBooleanString, IsEnum, IsOptional } from 'class-validator';
 
 export class OrderFilterDto {
   @IsEnum(OrderStatus)
   @IsOptional()
   status?: OrderStatus;
 
-  @IsString()
+  @IsBooleanString()
   @IsOptional()
-  currentUser?: string;
+  currentUser?: boolean;
 }
