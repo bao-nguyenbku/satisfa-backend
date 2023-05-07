@@ -15,4 +15,7 @@ export default () => ({
   paypalClientId: process.env.PAYPAL_CLIENT_ID,
   paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
   bcryptSaltRounds: 10,
+  cloudinaryName: process.env.CLOUDINARY_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinarySecret: process.env.CLOUDINARY_SECRET,
 });

@@ -4,6 +4,7 @@ import { Review, ReviewSchema } from './reviews.schema';
 import { ReviewsService } from './reviews.service';
 import { ReviewsController } from './reviews.controller';
 import { ConfigModule } from '@nestjs/config';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
         schema: ReviewSchema,
       },
     ]),
+    OrdersModule,
   ],
   providers: [ReviewsService],
   exports: [ReviewsService],

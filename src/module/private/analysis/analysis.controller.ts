@@ -99,6 +99,11 @@ export class AnalysisController {
   async getTotalpayByUser() {
     return this.analysisService.getTotalpayByUser();
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
   @Get('reviews/feedbacks')
   async calculateRatingQuality() {
     return this.analysisService.calculateRatingQuality();
