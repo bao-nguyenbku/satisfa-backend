@@ -98,10 +98,9 @@ export class AnalysisController {
   @Get('orders/paybyuser')
   async getTotalpayByUser() {
     return this.analysisService.getTotalpayByUser();
-    
+  }
   @Get('reviews/feedbacks')
   async calculateRatingQuality() {
     return this.analysisService.calculateRatingQuality();
-
   }
 }
