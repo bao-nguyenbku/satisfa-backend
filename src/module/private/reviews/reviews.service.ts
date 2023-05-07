@@ -17,7 +17,7 @@ export class ReviewsService {
   async create(createReviewDto: CreateReviewDto) {
     try {
       const orders = await this.ordersService.findByFilter({
-        currentUser: createReviewDto.customerId,
+        currentUser: true,
         status: OrderStatus.COMPLETE,
       });
       if (orders.length === 0) {

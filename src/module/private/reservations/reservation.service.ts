@@ -159,21 +159,24 @@ export class ReservationService {
             dayjs(checkingTable.reservations[idx].date).diff(
               dayjs(createReservationData.date),
               'second',
-            ) <
+            ) <=
               -1 * GAP_BETWEEN_RESERVATIONS &&
             dayjs(checkingTable.reservations[idx + 1].date).diff(
               dayjs(createReservationData.date),
               'second',
-            ) > GAP_BETWEEN_RESERVATIONS
+            ) >= GAP_BETWEEN_RESERVATIONS
           ) {
             console.log(
               `${createReservationData.date} is between ${
                 checkingTable.reservations[idx].date
               } and ${checkingTable.reservations[idx + 1].date}`,
             );
+            const createdReservation = await this.noValidateCreate(
+              createReservationData,
+            );
             isAvailable = true;
             reservations = [...checkingTable.reservations];
-            reservations.splice(idx + 1, 0, createReservationData as any);
+            reservations.splice(idx + 1, 0, createdReservation as any);
           }
         }
       }
