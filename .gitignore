@@ -2,7 +2,11 @@
 /dist
 /node_modules
 
+
+# local env files
 .env
+.env*.local
+
 # Logs
 logs
 *.log
@@ -27,6 +31,10 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+
+# local env files
+.env*.local
+.env
 
 # IDE - VSCode
 .vscode/*
