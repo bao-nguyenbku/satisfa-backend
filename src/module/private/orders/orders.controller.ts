@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
   Post,
   UseFilters,
   UseGuards,
@@ -62,6 +63,15 @@ export class OrdersController {
     return this.orderService.findById(id);
   }
 
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async deleteOrderById(@Param('id') id: string) {
+    return id;
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
@@ -73,7 +83,8 @@ export class OrdersController {
     return this.orderService.update(id, updateData);
   }
   @Patch(':id/paid')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async paidOrder(@Param('id') id: string, @Body() paymentData: PaidOrderDto) {

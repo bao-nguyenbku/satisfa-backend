@@ -9,6 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 // import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { transformResult } from '~/utils';
 
 @Injectable()
 export class ProductService {
@@ -58,7 +59,7 @@ export class ProductService {
     // }
     try {
       const productData = new this.productModel(createProductData);
-      return productData.save();
+      return transformResult((await productData.save()).toObject());
     } catch (error) {
       throw error;
     }

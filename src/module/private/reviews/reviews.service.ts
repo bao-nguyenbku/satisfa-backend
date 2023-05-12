@@ -7,6 +7,8 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewFilter } from './dto/review-filter.dto';
 import { OrdersService } from '../orders/orders.service';
 import { OrderStatus } from '../orders/order.schema';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class ReviewsService {
@@ -16,10 +18,13 @@ export class ReviewsService {
   ) {}
   async create(createReviewDto: CreateReviewDto) {
     try {
-      const orders = await this.ordersService.findByFilter({
-        currentUser: true,
-        status: OrderStatus.COMPLETE,
-      });
+      const orders = await this.ordersService.findByFilter(
+        {
+          currentUser: true,
+          status: OrderStatus.COMPLETE,
+        },
+        createReviewDto.customerId,
+      );
       if (orders.length === 0) {
         throw new BadRequestException(
           'This user can not write review because of not using any services',
@@ -31,7 +36,14 @@ export class ReviewsService {
       throw error;
     }
   }
-
+  async update(id: string, updateReviewDto: UpdateReviewDto) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      throw new BadRequestException('This is not a valid id');
+    const result = await this.reviewModel
+      .findByIdAndUpdate(id, updateReviewDto)
+      .lean();
+    return transformResult(result);
+  }
   async findAll(filter?: ReviewFilter): Promise<Review[]> {
     const { limit } = filter
       ? filter
@@ -45,7 +57,28 @@ export class ReviewsService {
         .limit(limit)
         .lean();
       return transformResult(result);
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
+  }
+  async findAllVisible(filter?: ReviewFilter) {
+    const { limit } = filter
+      ? filter
+      : {
+          limit: undefined,
+        };
+    try {
+      const result = await this.reviewModel
+        .find({
+          visible: true,
+        })
+        .populate('customerId', 'fullname avatar -_id')
+        .limit(limit)
+        .lean();
+      return transformResult(result);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findById() {
