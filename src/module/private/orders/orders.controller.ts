@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
   Post,
   UseFilters,
   UseGuards,
@@ -9,6 +10,7 @@ import {
   Patch,
   Query,
   UsePipes,
+  Request,
   ValidationPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
@@ -40,11 +42,17 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @Roles(Role.USER)
   @UseFilters(MongoExceptionFilter)
-  async getAllOrderByCurrentUser(@Query() filter: OrderFilterDto) {
-    return this.orderService.findByFilter({
-      ...filter,
-      currentUser: true,
-    });
+  async getAllOrderByCurrentUser(
+    @Query() filter: OrderFilterDto,
+    @Request() req,
+  ) {
+    return this.orderService.findByFilter(
+      {
+        ...filter,
+        currentUser: true,
+      },
+      req.user.id,
+    );
   }
 
   @Get(':id')
@@ -53,6 +61,15 @@ export class OrdersController {
   @UseFilters(MongoExceptionFilter)
   async getOrderById(@Param('id') id: string) {
     return this.orderService.findById(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async deleteOrderById(@Param('id') id: string) {
+    return id;
   }
 
   @Patch(':id')
@@ -66,7 +83,8 @@ export class OrdersController {
     return this.orderService.update(id, updateData);
   }
   @Patch(':id/paid')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async paidOrder(@Param('id') id: string, @Body() paymentData: PaidOrderDto) {

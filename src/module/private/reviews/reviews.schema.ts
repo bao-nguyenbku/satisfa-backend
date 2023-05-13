@@ -5,7 +5,6 @@ import { User } from '~/module/common/users/user.schema';
 
 export type ReviewDocument = HydratedDocument<Review>;
 
-
 @Schema({
   timestamps: true,
 })
@@ -33,6 +32,9 @@ export class Review {
     default: 0,
   })
   serviceRating: number;
+
+  @Prop({ required: false, default: true })
+  visible: boolean;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

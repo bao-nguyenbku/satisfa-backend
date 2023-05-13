@@ -12,9 +12,9 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import mongoose from 'mongoose';
 import {
   Reservation,
-  ReservationFilter,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
+import { ReservationFilter } from './dto/query-reserve.dto';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
@@ -29,34 +29,38 @@ export class ReservationService {
     private readonly tableService: TableService,
     private readonly userService: UsersService,
   ) {}
-  async findByFilter(filter?: ReservationFilter) {
+  async findByFilter(filter?: ReservationFilter, userId?: string) {
     try {
       if (_.isEmpty(filter)) {
         const result = await this.reservationModel
           .find()
           .populate('tableId')
-          .populate('customerId', 'fullname')
+          .populate('customerId', 'fullname avatar')
           .lean();
         return transformResult(result);
       }
-      const { date, user } = filter;
-      const currentDate = new Date().toISOString();
-      const endDate = '2099 08 18';
+      const filterObj = {};
+      const { currentDate, currentUser, date, user } = filter;
+      if (currentDate) {
+        filterObj['date'] = {
+          $gte: new Date().toISOString(),
+        };
+      }
+      if (currentUser) {
+        filterObj['customerId'] = userId ? userId : '';
+      }
       if (user) {
-        const result = await this.reservationModel
-          .find({
-            date: {
-              $gte: currentDate,
-              $lte: endDate,
-            },
-            customerId: user,
-          })
-          .populate('tableId')
-          .lean();
-        return transformResult(result);
+        filterObj['customerId'] = user;
+      }
+      if (date) {
+        filterObj['date'] = date;
       }
 
-      const result = await this.reservationModel.find({ date });
+      const result = await this.reservationModel
+        .find(filterObj)
+        .populate('tableId')
+        .populate('customerId', 'fullname avatar')
+        .lean();
       return transformResult(result);
     } catch (error) {
       throw error;
