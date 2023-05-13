@@ -10,7 +10,7 @@ import {
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CreateUserDto } from '~/module/common/users/dto/create-user';
+import { CreateUserDto } from '~/module/common/users/dto/create-user.dto';
 import { UsersService } from '~/module/common/users/user.service';
 import { CreateGoogleUserDto } from '../users/dto/create-google-user.dto';
 

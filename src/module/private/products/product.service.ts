@@ -66,19 +66,20 @@ export class ProductService {
   }
   async findAll() {
     try {
-      const productList = await this.productModel
+      const result = await this.productModel
         .find()
-        .populate('category')
+        .populate('category', 'name')
         .lean();
-      if (Array.isArray(productList)) {
-        return productList.map((item) => {
-          const { _id, __v, ...newItem } = item;
-          return {
-            ...newItem,
-            category: newItem.category.name,
-            id: _id,
-          };
-        });
+
+      if (result && Array.isArray(result)) {
+        return transformResult(
+          result.map((item) => {
+            return {
+              ...item,
+              category: item.category?.name,
+            };
+          }),
+        );
       }
       return null;
     } catch (error) {
