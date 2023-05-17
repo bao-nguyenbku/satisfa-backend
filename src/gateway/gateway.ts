@@ -41,15 +41,7 @@ export class Gateway
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server.to(client.id).emit('typing');
-    const botMessage = await this.satisgiService.getRandomMessage();
-    if (botMessage) {
-      this.server.to(client.id).emit('off-typing');
-      this.server.to(client.id).emit('onMessage', {
-        message: botMessage,
-        user: 'satisgi',
-      });
-    }
+    this.server.to(client.id).emit('onMessage', 'Hello');
   }
 
   @SubscribeMessage('disconnect')

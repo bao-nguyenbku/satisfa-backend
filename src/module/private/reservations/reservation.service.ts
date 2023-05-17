@@ -125,7 +125,7 @@ export class ReservationService {
         ) <
         -1 * GAP_BETWEEN_RESERVATIONS
       ) {
-        console.error(
+        console.log(
           `${createReservationData.date} smaller than ${checkingTable.reservations[0].date}`,
         );
         const createdReservation = await this.noValidateCreate(
