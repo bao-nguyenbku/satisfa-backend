@@ -180,41 +180,74 @@ export class OrdersService {
     }
   }
 
-  async getBestSeller(amount?: number) {
+  async getBestSeller(filter?: number) {
     try {
-      const bestSeller: any = this.orderModel.aggregate([
-        {
-          $unwind: {
-            path: '$items',
-          },
-        },
-        {
-          $group: {
-            _id: '$items.id',
-            name: {
-              $first: '$items.name',
+      if (Object.keys(filter).length == 0) {
+        const bestSeller: any = this.orderModel.aggregate([
+          {
+            $unwind: {
+              path: '$items',
             },
-            image: {
-              $first: '$items.images',
-            },
-            totalSold: {
-              $sum: '$items.qty',
-            },
-            // percent: {
-            //   $
-            // }
           },
-        },
-        {
-          $sort: {
-            totalSold: -1,
+          {
+            $group: {
+              _id: '$items.id',
+              name: {
+                $first: '$items.name',
+              },
+              image: {
+                $first: '$items.images',
+              },
+              totalSold: {
+                $sum: '$items.qty',
+              },
+              // percent: {
+              //   $
+              // }
+            },
           },
-        },
-        {
-          $limit: 4,
-        },
-      ]);
-      return bestSeller;
+          {
+            $sort: {
+              totalSold: -1,
+            },
+          },
+        ]);
+        return bestSeller;
+      } else {
+        const bestSeller: any = this.orderModel.aggregate([
+          {
+            $unwind: {
+              path: '$items',
+            },
+          },
+          {
+            $group: {
+              _id: '$items.id',
+              name: {
+                $first: '$items.name',
+              },
+              image: {
+                $first: '$items.images',
+              },
+              totalSold: {
+                $sum: '$items.qty',
+              },
+              // percent: {
+              //   $
+              // }
+            },
+          },
+          {
+            $sort: {
+              totalSold: -1,
+            },
+          },
+          {
+            $limit: 4,
+          },
+        ]);
+        return bestSeller;
+      }
     } catch (error) {
       throw error;
     }
