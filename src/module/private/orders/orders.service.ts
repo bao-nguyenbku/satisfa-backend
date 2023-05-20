@@ -281,36 +281,38 @@ export class OrdersService {
 
   async getTotalpayByUser() {
     try {
-      const userList = this.orderModel.aggregate([
-        {
-          $match: {
-            paymentStatus: 'PAID',
-          },
-        },
-        {
-          $group: {
-            _id: '$customerId',
-            totalPay: {
-              $sum: '$totalCost',
+      const userList = this.orderModel
+        .aggregate([
+          {
+            $match: {
+              paymentStatus: 'PAID',
             },
           },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'user',
+          {
+            $group: {
+              _id: '$customerId',
+              totalPay: {
+                $sum: '$totalCost',
+              },
+            },
           },
-        },
-        {
-          $project: {
-            fullname: '$user.fullname',
-            totalPay: '$totalPay',
-            avatar: '$user.avatar',
+          {
+            $lookup: {
+              from: 'users',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'user',
+            },
           },
-        },
-      ]);
+          {
+            $project: {
+              fullname: '$user.fullname',
+              totalPay: '$totalPay',
+              avatar: '$user.avatar',
+            },
+          },
+        ])
+        .exec();
       return userList;
     } catch (error) {
       throw error;

@@ -99,8 +99,14 @@ export class OrdersController {
     return this.orderService.create(createOrderData);
   }
 
+  @Post('create-guest')
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async createOrderByGuest(@Body() createOrderData: CreateOrderDto) {
+    return this.orderService.create(createOrderData);
+  }
   // ANALYSIS
-  @Get('/count')
+  @Get('count')
   @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)

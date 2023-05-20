@@ -83,7 +83,7 @@ export class Order {
 
   @Prop({
     required: false,
-    default: true,
+    default: false,
   })
   isArchive: boolean;
 }

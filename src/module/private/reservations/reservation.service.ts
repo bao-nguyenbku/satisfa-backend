@@ -42,8 +42,11 @@ export class ReservationService {
       const filterObj = {};
       const { currentDate, currentUser, date, user } = filter;
       if (currentDate) {
+        const current = new Date();
+        const tomorrow = new Date(current.getTime() + 24 * 60 * 60 * 1000);
         filterObj['date'] = {
-          $gte: new Date().toISOString(),
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
         };
       }
       if (currentUser) {
@@ -125,7 +128,7 @@ export class ReservationService {
         ) <
         -1 * GAP_BETWEEN_RESERVATIONS
       ) {
-        console.error(
+        console.log(
           `${createReservationData.date} smaller than ${checkingTable.reservations[0].date}`,
         );
         const createdReservation = await this.noValidateCreate(
