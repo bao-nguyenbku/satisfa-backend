@@ -115,7 +115,16 @@ export class AnalysisService {
   async getTotalpayByUser() {
     try {
       const userList = await this.orderService.getTotalpayByUser();
-      return userList;
+      return userList.map((user) => {
+        const id = user._id;
+        delete user._id;
+        return {
+          ...user,
+          fullname: user?.fullname[0],
+          avatar: user?.avatar[0],
+          id,
+        };
+      });
     } catch (error) {
       throw error;
     }

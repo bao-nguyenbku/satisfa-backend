@@ -20,11 +20,6 @@ import * as _ from 'lodash';
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
-  @Get()
-  async getAllTable(@Query() filter: TableFilter) {
-    return this.tableService.findAllByFilter(filter);
-  }
-
   @Get(':id')
   @UseFilters(MongoExceptionFilter)
   async getTableById(@Param('id') id: string, @Query() filter: TableFilter) {

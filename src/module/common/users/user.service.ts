@@ -25,28 +25,25 @@ export class UsersService {
 
   async findById(id: string) {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const user = await this.userModel.findById(id).lean();
-        if (user) {
-          return transformResult(user);
-        }
-        return null;
-      } else {
-        throw new NotAcceptableException('This is not a valid id');
+      if (!mongoose.Types.ObjectId.isValid(id))
+        throw new NotAcceptableException(id + ' is not a valid id');
+
+      const user = await this.userModel.findById(id).lean();
+      if (user) {
+        const resUser = _.omit(user, ['password', 'role']);
+        return transformResult(resUser);
       }
+      return null;
     } catch (error) {
       throw error;
     }
   }
-  async findByEmail(email: string): Promise<UserEntity> {
+  // !PRIVATE SERVICE
+  async findByEmail(email: string) {
     try {
       const existedEmail = await this.userModel.findOne({ email }).lean();
       if (existedEmail) {
-        return transformResult({
-          ...existedEmail,
-          id: existedEmail._id.toString(),
-          role: existedEmail.role as Role,
-        });
+        return transformResult(existedEmail);
       }
     } catch (error) {
       throw error;
