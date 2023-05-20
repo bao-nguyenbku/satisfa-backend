@@ -109,6 +109,11 @@ export class OrdersService {
           throw new BadRequestException('You must send takeaway information');
         }
         const { tempCustomer } = createOrderData;
+        console.log(createOrderData);
+        console.log(tempCustomer);
+        console.log(_.isEmpty(tempCustomer.name));
+        console.log(_.isNumber(tempCustomer.phone));
+        console.log(_.isEmpty(tempCustomer.takingTime));
         if (
           !_.has(tempCustomer, 'name') ||
           !_.has(tempCustomer, 'phone') ||
@@ -175,38 +180,74 @@ export class OrdersService {
     }
   }
 
-  async getBestSeller(amount?: number) {
+  async getBestSeller(filter?: number) {
     try {
-      const bestSeller: any = this.orderModel.aggregate([
-        {
-          $unwind: {
-            path: '$items',
-          },
-        },
-        {
-          $group: {
-            _id: '$items.id',
-            name: {
-              $first: '$items.name',
-            },
-            image: {
-              $first: '$items.images',
-            },
-            totalSold: {
-              $sum: '$items.qty',
+      if (Object.keys(filter).length == 0) {
+        const bestSeller: any = this.orderModel.aggregate([
+          {
+            $unwind: {
+              path: '$items',
             },
           },
-        },
-        {
-          $sort: {
-            totalSold: -1,
+          {
+            $group: {
+              _id: '$items.id',
+              name: {
+                $first: '$items.name',
+              },
+              image: {
+                $first: '$items.images',
+              },
+              totalSold: {
+                $sum: '$items.qty',
+              },
+              // percent: {
+              //   $
+              // }
+            },
           },
-        },
-        {
-          $limit: 4,
-        },
-      ]);
-      return bestSeller;
+          {
+            $sort: {
+              totalSold: -1,
+            },
+          },
+        ]);
+        return bestSeller;
+      } else {
+        const bestSeller: any = this.orderModel.aggregate([
+          {
+            $unwind: {
+              path: '$items',
+            },
+          },
+          {
+            $group: {
+              _id: '$items.id',
+              name: {
+                $first: '$items.name',
+              },
+              image: {
+                $first: '$items.images',
+              },
+              totalSold: {
+                $sum: '$items.qty',
+              },
+              // percent: {
+              //   $
+              // }
+            },
+          },
+          {
+            $sort: {
+              totalSold: -1,
+            },
+          },
+          {
+            $limit: 4,
+          },
+        ]);
+        return bestSeller;
+      }
     } catch (error) {
       throw error;
     }

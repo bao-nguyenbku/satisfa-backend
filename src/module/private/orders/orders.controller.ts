@@ -120,7 +120,8 @@ export class OrdersController {
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
-  async getBestSeller() {
-    return this.orderService.getBestSeller(5);
+  async getBestSeller(@Query() filter: number) {
+    console.log('filter', filter);
+    return this.orderService.getBestSeller(filter);
   }
 }
