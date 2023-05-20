@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { Gateway } from './gateway';
-import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
+import { UsersModule } from '~/module/common/users/user.module';
+// import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
 
 @Module({
-  providers: [Gateway, SatisgiService],
+  imports: [UsersModule],
+  providers: [Gateway],
 })
 export class GatewayModule {}

@@ -195,9 +195,6 @@ export class OrdersService {
             totalSold: {
               $sum: '$items.qty',
             },
-            // percent: {
-            //   $
-            // }
           },
         },
         {
