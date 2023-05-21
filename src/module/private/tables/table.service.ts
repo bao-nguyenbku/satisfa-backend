@@ -73,25 +73,8 @@ export class TableService {
   // async findAllTableWithStatus() {
 
   // }
-  checkingDiffTime(arr: any, time: any) {
-    for (let i = 0; i < arr.length; i++) {
-      if (
-        dayjs(arr[i].date) > dayjs(time) &&
-        dayjs(arr[i].date).diff(dayjs(time), 'hour') < 1
-      )
-        return false;
-      if (
-        dayjs(time) > dayjs(arr[i].date) &&
-        dayjs(time).diff(dayjs(arr[i].date), 'hour') < 2
-      )
-        return false;
-      if (dayjs(time).diff(dayjs(arr[i].date)) == 0) return false;
-      continue;
-    }
-    return true;
-  }
   async findTableForRevervation(filter: TableFilter): Promise<Table[]> {
-    const { minSeat, reservationDate } = filter;
+    const { reserveFlag, minSeat, reservationDate } = filter;
     let filterObj = {};
     try {
       if (!_.isEmpty(minSeat)) {
@@ -113,23 +96,96 @@ export class TableService {
         })
         .lean();
       if (result) {
-        const filterResult = [];
-        if (reservationDate) {
-          result.map((table) => {
-            if (this.checkingDiffTime(table.reservations, reservationDate)) {
-              filterResult.unshift(table);
-            }
-          });
-        }
-        if (filterResult.length > 0) {
+        if (reserveFlag) {
+          const filterResult = [];
+          if (reservationDate) {
+            result.map((table) => {
+              if (this.checkingDiffTime(table.reservations, reservationDate)) {
+                filterResult.unshift(table);
+              }
+            });
+          }
+          if (filterResult.length > 0) {
+            return transformResult(filterResult);
+          }
+          return transformResult(result);
+        } else {
+          let filterResult = [...result];
+          if (reservationDate) {
+            filterResult = result.map((table) => {
+              const filterReservation = table.reservations.filter(
+                (ele) => dayjs(ele.date).diff(dayjs(reservationDate)) >= 0,
+              );
+              return {
+                ...table,
+                reservations: filterReservation,
+              };
+            });
+          }
           return transformResult(filterResult);
         }
-        return transformResult(result);
       }
     } catch (error) {
       throw error;
     }
   }
+  checkingDiffTime(arr: any, time: any) {
+    for (let i = 0; i < arr.length; i++) {
+      if (
+        dayjs(arr[i].date) > dayjs(time) &&
+        dayjs(arr[i].date).diff(dayjs(time), 'hour') < 1
+      )
+        return false;
+      if (
+        dayjs(time) > dayjs(arr[i].date) &&
+        dayjs(time).diff(dayjs(arr[i].date), 'hour') < 2
+      )
+        return false;
+      if (dayjs(time).diff(dayjs(arr[i].date)) == 0) return false;
+      continue;
+    }
+    return true;
+  }
+  // async findTableForRevervation(filter: TableFilter): Promise<Table[]> {
+  //   const { minSeat, reservationDate } = filter;
+  //   let filterObj = {};
+  //   try {
+  //     if (!_.isEmpty(minSeat)) {
+  //       filterObj = {
+  //         numberOfSeats: {
+  //           $gte: minSeat,
+  //         },
+  //       };
+  //     }
+  //     const result = await this.tableModel
+  //       .find(filterObj)
+  //       .populate({
+  //         path: 'reservations',
+  //         populate: {
+  //           path: 'customerId',
+  //           select: '-password -role',
+  //         },
+  //         select: '-tableId',
+  //       })
+  //       .lean();
+  //     if (result) {
+  //       const filterResult = [];
+  //       if (reservationDate) {
+  //         result.map((table) => {
+  //           if (this.checkingDiffTime(table.reservations, reservationDate)) {
+  //             filterResult.unshift(table);
+  //           }
+  //         });
+  //       }
+  //       if (filterResult.length > 0) {
+  //         return transformResult(filterResult);
+  //       }
+  //       return transformResult(result);
+  //     }
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
   async findById(id: string, filter: TableFilter) {
     const { reservationDate } = filter;
     try {
