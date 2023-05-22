@@ -50,6 +50,7 @@ export class OrdersService {
         .sort({
           createdAt: -1,
         })
+        .limit(filter.lastest === true ? 1 : 0)
         .lean();
       // return result;
       if (result && _.isArray(result)) {
