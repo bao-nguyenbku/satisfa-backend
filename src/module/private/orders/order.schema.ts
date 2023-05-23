@@ -80,6 +80,12 @@ export class Order {
 
   @Prop({ required: true })
   items: (Product & { qty: number })[];
+
+  @Prop({
+    required: false,
+    default: false,
+  })
+  isArchive: boolean;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

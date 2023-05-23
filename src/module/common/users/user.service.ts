@@ -1,7 +1,11 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { CreateUserDto } from '~/module/common/users/dto/create-user';
+import { CreateUserDto } from '~/module/common/users/dto/create-user.dto';
 import { User, UserDocument } from '~/module/common/users/user.schema';
 import { HashService } from './hash.service';
 
@@ -10,6 +14,7 @@ import { transformResult } from '~/utils';
 import { Role } from '~/constants/role.enum';
 import * as _ from 'lodash';
 import { UserEntity } from './entities/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,34 +25,44 @@ export class UsersService {
 
   async findById(id: string) {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const user = await this.userModel.findById(id).lean();
-        if (user) {
-          return transformResult(user);
-        }
-        return null;
-      } else {
-        throw new NotAcceptableException('This is not a valid id');
+      if (!mongoose.Types.ObjectId.isValid(id))
+        throw new NotAcceptableException(id + ' is not a valid id');
+
+      const user = await this.userModel.findById(id).lean();
+      if (user) {
+        const resUser = _.omit(user, ['password', 'role']);
+        return transformResult(resUser);
       }
+      return null;
     } catch (error) {
       throw error;
     }
   }
-  async findByEmail(email: string): Promise<UserEntity> {
+  // !PRIVATE SERVICE
+  async findByEmail(email: string) {
     try {
       const existedEmail = await this.userModel.findOne({ email }).lean();
       if (existedEmail) {
-        return transformResult({
-          ...existedEmail,
-          id: existedEmail._id.toString(),
-          role: existedEmail.role as Role,
-        });
+        return transformResult(existedEmail);
       }
     } catch (error) {
       throw error;
     }
   }
-
+  async update(id: string, updateData: UpdateUserDto) {
+    if (_.has(updateData, 'email') || _.has(updateData, 'role')) {
+      throw new BadRequestException('Some field can not be accepted to update');
+    }
+    try {
+      const result = await this.userModel
+        .findByIdAndUpdate(id, updateData)
+        .select(['-password', '-role'])
+        .lean();
+      return transformResult(result);
+    } catch (error) {
+      throw error;
+    }
+  }
   async findAll(): Promise<UserDataDto[]> {
     try {
       const userList = await this.userModel

@@ -20,6 +20,7 @@ import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
 import { User, UserDocument } from '~/module/common/users/user.schema';
+import dayjs from 'dayjs';
 
 @Injectable({ scope: Scope.REQUEST })
 export class OrdersService {
@@ -32,12 +33,24 @@ export class OrdersService {
   async findByFilter(filter?: OrderFilterDto, userId?: string) {
     const filterObj = {};
     if (!_.isEmpty(filter)) {
-      if (_.has(filter, 'status')) {
-        filterObj['status'] = filter.status;
+      const { status, currentDate, currentUser } = filter;
+      if (status) {
+        filterObj['status'] = status;
       }
-      if (_.has(filter, 'currentUser') && filter.currentUser === true) {
+      if (currentDate) {
+        const current = new Date();
+        const tomorrow = new Date(current.getTime() + 24 * 60 * 60 * 1000);
+        filterObj['createdAt'] = {
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
+        };
+      }
+      if (currentUser) {
         filterObj['customerId'] = userId ? userId : '';
       }
+      // if (_.has(filter, 'currentUser') && filter.currentUser === true) {
+      //   filterObj['customerId'] = userId ? userId : '';
+      // }
     }
     try {
       const result = await this.orderModel
@@ -109,6 +122,11 @@ export class OrdersService {
           throw new BadRequestException('You must send takeaway information');
         }
         const { tempCustomer } = createOrderData;
+        console.log(createOrderData);
+        console.log(tempCustomer);
+        console.log(_.isEmpty(tempCustomer.name));
+        console.log(_.isNumber(tempCustomer.phone));
+        console.log(_.isEmpty(tempCustomer.takingTime));
         if (
           !_.has(tempCustomer, 'name') ||
           !_.has(tempCustomer, 'phone') ||
@@ -175,41 +193,74 @@ export class OrdersService {
     }
   }
 
-  async getBestSeller(amount?: number) {
+  async getBestSeller(filter?: number) {
     try {
-      const bestSeller: any = this.orderModel.aggregate([
-        {
-          $unwind: {
-            path: '$items',
-          },
-        },
-        {
-          $group: {
-            _id: '$items.id',
-            name: {
-              $first: '$items.name',
+      if (Object.keys(filter).length == 0) {
+        const bestSeller: any = this.orderModel.aggregate([
+          {
+            $unwind: {
+              path: '$items',
             },
-            image: {
-              $first: '$items.images',
-            },
-            totalSold: {
-              $sum: '$items.qty',
-            },
-            // percent: {
-            //   $
-            // }
           },
-        },
-        {
-          $sort: {
-            totalSold: -1,
+          {
+            $group: {
+              _id: '$items.id',
+              name: {
+                $first: '$items.name',
+              },
+              image: {
+                $first: '$items.images',
+              },
+              totalSold: {
+                $sum: '$items.qty',
+              },
+              // percent: {
+              //   $
+              // }
+            },
           },
-        },
-        {
-          $limit: 4,
-        },
-      ]);
-      return bestSeller;
+          {
+            $sort: {
+              totalSold: -1,
+            },
+          },
+        ]);
+        return bestSeller;
+      } else {
+        const bestSeller: any = this.orderModel.aggregate([
+          {
+            $unwind: {
+              path: '$items',
+            },
+          },
+          {
+            $group: {
+              _id: '$items.id',
+              name: {
+                $first: '$items.name',
+              },
+              image: {
+                $first: '$items.images',
+              },
+              totalSold: {
+                $sum: '$items.qty',
+              },
+              // percent: {
+              //   $
+              // }
+            },
+          },
+          {
+            $sort: {
+              totalSold: -1,
+            },
+          },
+          {
+            $limit: 4,
+          },
+        ]);
+        return bestSeller;
+      }
     } catch (error) {
       throw error;
     }
@@ -243,36 +294,38 @@ export class OrdersService {
 
   async getTotalpayByUser() {
     try {
-      const userList = this.orderModel.aggregate([
-        {
-          $match: {
-            paymentStatus: 'PAID',
-          },
-        },
-        {
-          $group: {
-            _id: '$customerId',
-            totalPay: {
-              $sum: '$totalCost',
+      const userList = this.orderModel
+        .aggregate([
+          {
+            $match: {
+              paymentStatus: 'PAID',
             },
           },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'user',
+          {
+            $group: {
+              _id: '$customerId',
+              totalPay: {
+                $sum: '$totalCost',
+              },
+            },
           },
-        },
-        {
-          $project: {
-            fullname: '$user.fullname',
-            totalPay: '$totalPay',
-            avatar: '$user.avatar',
+          {
+            $lookup: {
+              from: 'users',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'user',
+            },
           },
-        },
-      ]);
+          {
+            $project: {
+              fullname: '$user.fullname',
+              totalPay: '$totalPay',
+              avatar: '$user.avatar',
+            },
+          },
+        ])
+        .exec();
       return userList;
     } catch (error) {
       throw error;

@@ -17,16 +17,16 @@ export class Product {
   })
   category: Category;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: '' })
   description: string;
 
   @Prop({ required: true })
-  images: Array<string>;
+  images: string[];
 
   @Prop({ required: true })
   price: number;
 
-  @Prop({ required: true, default: true })
+  @Prop({ required: false, default: true })
   visible: boolean;
 }
 

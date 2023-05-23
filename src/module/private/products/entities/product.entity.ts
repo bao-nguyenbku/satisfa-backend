@@ -1,24 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose from 'mongoose';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+
 export class ProductEntity {
   @ApiProperty()
-  id: mongoose.Schema.Types.ObjectId;
+  @IsString()
+  id: string;
 
   @ApiProperty()
+  @IsString()
   name: string;
 
   @ApiProperty()
-  category: number;
+  @IsString()
+  category: string;
 
+  @IsString()
+  @IsOptional()
   @ApiProperty()
   description: string;
 
   @ApiProperty()
+  @IsNumber()
   price: number;
 
   @ApiProperty()
-  images: Array<string>;
+  @Type(() => String)
+  images: string[];
 
   @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
   visible: boolean;
 }

@@ -9,6 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 // import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { transformResult } from '~/utils';
 
 @Injectable()
 export class ProductService {
@@ -58,26 +59,27 @@ export class ProductService {
     // }
     try {
       const productData = new this.productModel(createProductData);
-      return productData.save();
+      return transformResult((await productData.save()).toObject());
     } catch (error) {
       throw error;
     }
   }
   async findAll() {
     try {
-      const productList = await this.productModel
+      const result = await this.productModel
         .find()
-        .populate('category')
+        .populate('category', 'name')
         .lean();
-      if (Array.isArray(productList)) {
-        return productList.map((item) => {
-          const { _id, __v, ...newItem } = item;
-          return {
-            ...newItem,
-            category: newItem.category.name,
-            id: _id,
-          };
-        });
+
+      if (result && Array.isArray(result)) {
+        return transformResult(
+          result.map((item) => {
+            return {
+              ...item,
+              category: item.category?.name,
+            };
+          }),
+        );
       }
       return null;
     } catch (error) {

@@ -5,6 +5,7 @@ import {
   MaxLength,
   IsISO8601,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -46,4 +47,8 @@ export class ReviewEntity {
   @IsString()
   @IsISO8601()
   updatedAt: string;
+
+  @IsOptional()
+  @IsBoolean()
+  visible: boolean;
 }

@@ -12,6 +12,7 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import mongoose from 'mongoose';
 import {
   Reservation,
+  ReservationStatus,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
 import { ReservationFilter } from './dto/query-reserve.dto';
@@ -40,10 +41,13 @@ export class ReservationService {
         return transformResult(result);
       }
       const filterObj = {};
-      const { currentDate, currentUser, date, user } = filter;
+      const { currentDate, currentUser, date, user, checkedIn } = filter;
       if (currentDate) {
+        const current = new Date();
+        const tomorrow = new Date(current.getTime() + 24 * 60 * 60 * 1000);
         filterObj['date'] = {
-          $gte: new Date().toISOString(),
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
         };
       }
       if (currentUser) {
@@ -55,10 +59,12 @@ export class ReservationService {
       if (date) {
         filterObj['date'] = date;
       }
-
+      if (checkedIn) {
+        filterObj['status'] = ReservationStatus.CHECKED_IN;
+      }
       const result = await this.reservationModel
         .find(filterObj)
-        .populate('tableId')
+        .populate('tableId', '-reservations')
         .populate('customerId', 'fullname avatar')
         .lean();
       return transformResult(result);
@@ -69,16 +75,15 @@ export class ReservationService {
 
   async findById(id: string) {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const reservation = await this.reservationModel.findById(id).lean();
-        // TODO Handle case product null;
-        if (reservation) {
-          return transformResult(reservation);
-        }
-        return null;
-      } else {
+      if (!mongoose.Types.ObjectId.isValid(id))
         throw new NotAcceptableException('This is not a valid id');
+
+      const reservation = await this.reservationModel.findById(id).lean();
+      // TODO Handle case product null;
+      if (reservation) {
+        return transformResult(reservation);
       }
+      return null;
     } catch (error) {
       throw error;
     }
@@ -86,7 +91,7 @@ export class ReservationService {
   async noValidateCreate(createReservationData: CreateReservationDto) {
     try {
       const newReservation = new this.reservationModel(createReservationData);
-      return newReservation.save();
+      return (await newReservation.save()).toObject();
     } catch (error) {
       throw error;
     }
@@ -107,12 +112,11 @@ export class ReservationService {
       if (!user) {
         throw new HttpException('User does not exist!', HttpStatus.NOT_FOUND);
       }
+      let createdReservation;
       let reservations: mongoose.LeanDocument<Reservation>[];
       let isAvailable = false;
       if (_.isEmpty(checkingTable.reservations)) {
-        const createdReservation = await this.noValidateCreate(
-          createReservationData,
-        );
+        createdReservation = await this.noValidateCreate(createReservationData);
         isAvailable = true;
         console.log('Empty');
         reservations = [...checkingTable.reservations, createdReservation];
@@ -125,12 +129,10 @@ export class ReservationService {
         ) <
         -1 * GAP_BETWEEN_RESERVATIONS
       ) {
-        console.error(
+        console.log(
           `${createReservationData.date} smaller than ${checkingTable.reservations[0].date}`,
         );
-        const createdReservation = await this.noValidateCreate(
-          createReservationData,
-        );
+        createdReservation = await this.noValidateCreate(createReservationData);
         isAvailable = true;
         reservations = [createdReservation, ...checkingTable.reservations];
       }
@@ -150,9 +152,7 @@ export class ReservationService {
               .date
           }`,
         );
-        const createdReservation = await this.noValidateCreate(
-          createReservationData,
-        );
+        createdReservation = await this.noValidateCreate(createReservationData);
         isAvailable = true;
         reservations = [...checkingTable.reservations, createdReservation];
       }
@@ -175,7 +175,7 @@ export class ReservationService {
                 checkingTable.reservations[idx].date
               } and ${checkingTable.reservations[idx + 1].date}`,
             );
-            const createdReservation = await this.noValidateCreate(
+            createdReservation = await this.noValidateCreate(
               createReservationData,
             );
             isAvailable = true;
@@ -185,9 +185,15 @@ export class ReservationService {
         }
       }
       if (isAvailable) {
-        return this.tableService.update(createReservationData.tableId, {
-          reservations: reservations as any,
-        });
+        const updated = await this.tableService.update(
+          createReservationData.tableId,
+          {
+            reservations: reservations as any,
+          },
+        );
+        if (updated) {
+          return transformResult(createdReservation);
+        }
       }
       throw new HttpException(
         'Can not make new reservation because this table was busy',

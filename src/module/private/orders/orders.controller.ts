@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
   Post,
   UseFilters,
   UseGuards,
@@ -62,6 +63,15 @@ export class OrdersController {
     return this.orderService.findById(id);
   }
 
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async deleteOrderById(@Param('id') id: string) {
+    return id;
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
@@ -73,7 +83,8 @@ export class OrdersController {
     return this.orderService.update(id, updateData);
   }
   @Patch(':id/paid')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async paidOrder(@Param('id') id: string, @Body() paymentData: PaidOrderDto) {
@@ -88,8 +99,14 @@ export class OrdersController {
     return this.orderService.create(createOrderData);
   }
 
+  @Post('create-guest')
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async createOrderByGuest(@Body() createOrderData: CreateOrderDto) {
+    return this.orderService.create(createOrderData);
+  }
   // ANALYSIS
-  @Get('/count')
+  @Get('count')
   @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
@@ -103,7 +120,8 @@ export class OrdersController {
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
-  async getBestSeller() {
-    return this.orderService.getBestSeller(5);
+  async getBestSeller(@Query() filter: number) {
+    console.log('filter', filter);
+    return this.orderService.getBestSeller(filter);
   }
 }

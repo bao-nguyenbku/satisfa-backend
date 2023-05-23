@@ -6,6 +6,10 @@ import { Table } from '~/module/private/tables/table.schema';
 
 export type ReservatonDocument = HydratedDocument<Reservation>;
 
+export enum ReservationStatus {
+  RESERVED = 'RESERVED',
+  CHECKED_IN = 'CHECKED_IN',
+}
 @Schema()
 export class Reservation {
   @Prop({
@@ -30,6 +34,9 @@ export class Reservation {
 
   @Prop({ required: false })
   note: string;
+
+  @Prop({ required: false, default: ReservationStatus.RESERVED })
+  status: ReservationStatus;
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);

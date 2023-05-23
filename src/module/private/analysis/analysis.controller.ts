@@ -60,8 +60,8 @@ export class AnalysisController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   @Get('orders/bestseller')
-  async getBestseller(@Query() query: any) {
-    return this.analysisService.bestSeller(query.amount);
+  async getBestseller(@Query() filter: any) {
+    return this.analysisService.bestSeller(filter);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
