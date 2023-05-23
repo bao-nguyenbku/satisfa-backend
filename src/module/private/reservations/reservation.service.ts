@@ -12,6 +12,7 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import mongoose from 'mongoose';
 import {
   Reservation,
+  ReservationStatus,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
 import { ReservationFilter } from './dto/query-reserve.dto';
@@ -40,7 +41,7 @@ export class ReservationService {
         return transformResult(result);
       }
       const filterObj = {};
-      const { currentDate, currentUser, date, user } = filter;
+      const { currentDate, currentUser, date, user, checkedIn } = filter;
       if (currentDate) {
         const current = new Date();
         const tomorrow = new Date(current.getTime() + 24 * 60 * 60 * 1000);
@@ -58,10 +59,12 @@ export class ReservationService {
       if (date) {
         filterObj['date'] = date;
       }
-
+      if (checkedIn) {
+        filterObj['status'] = ReservationStatus.CHECKED_IN;
+      }
       const result = await this.reservationModel
         .find(filterObj)
-        .populate('tableId')
+        .populate('tableId', '-reservations')
         .populate('customerId', 'fullname avatar')
         .lean();
       return transformResult(result);

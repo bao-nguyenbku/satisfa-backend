@@ -8,6 +8,8 @@ import {
   Patch,
   Delete,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductService } from './product.service';
@@ -22,7 +24,7 @@ import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard)
   // @Roles(Role.USER, Role.ADMIN)
   @Get()
   async getAllProduct() {
@@ -42,6 +44,10 @@ export class ProductController {
     return this.productService.findById(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
+  @Roles(Role.ADMIN)
   @Patch('/:id')
   async updateProduct(
     @Body() updateData: UpdateProductDto,
@@ -51,7 +57,10 @@ export class ProductController {
   }
 
   @Delete('/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
   async deleteProduct(@Param('id') id: string) {
     return this.productService.delete(id);
   }

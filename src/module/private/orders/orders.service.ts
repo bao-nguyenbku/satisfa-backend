@@ -20,6 +20,7 @@ import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
 import { User, UserDocument } from '~/module/common/users/user.schema';
+import dayjs from 'dayjs';
 
 @Injectable({ scope: Scope.REQUEST })
 export class OrdersService {
@@ -32,12 +33,24 @@ export class OrdersService {
   async findByFilter(filter?: OrderFilterDto, userId?: string) {
     const filterObj = {};
     if (!_.isEmpty(filter)) {
-      if (_.has(filter, 'status')) {
-        filterObj['status'] = filter.status;
+      const { status, currentDate, currentUser } = filter;
+      if (status) {
+        filterObj['status'] = status;
       }
-      if (_.has(filter, 'currentUser') && filter.currentUser === true) {
+      if (currentDate) {
+        const current = new Date();
+        const tomorrow = new Date(current.getTime() + 24 * 60 * 60 * 1000);
+        filterObj['createdAt'] = {
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
+        };
+      }
+      if (currentUser) {
         filterObj['customerId'] = userId ? userId : '';
       }
+      // if (_.has(filter, 'currentUser') && filter.currentUser === true) {
+      //   filterObj['customerId'] = userId ? userId : '';
+      // }
     }
     try {
       const result = await this.orderModel
