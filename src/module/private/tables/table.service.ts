@@ -80,6 +80,7 @@ export class TableService {
       throw error;
     }
   }
+
   checkingDiffTime(arr: any, time: any) {
     for (let i = 0; i < arr.length; i++) {
       if (
@@ -140,40 +141,39 @@ export class TableService {
   async findById(id: string, filter: TableFilter) {
     const { reservationDate } = filter;
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const existedTable = await this.tableModel
-          .findById(id)
-          .populate({
-            path: 'reservations',
-            populate: {
-              path: 'customerId',
-              select: '-password -role',
-            },
-            select: '-tableId',
-          })
-          .lean();
-        if (existedTable) {
-          const filterdReservation = existedTable.reservations.filter((ele) => {
-            return dayjs(ele.date).diff(dayjs(reservationDate)) >= 0;
-          });
-          existedTable.reservations = filterdReservation;
-          return transformResult(existedTable);
-        }
-        return null;
-      } else {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new NotAcceptableException('This is not a valid table id');
       }
+
+      const existedTable = await this.tableModel
+        .findById(id)
+        .populate({
+          path: 'reservations',
+          populate: {
+            path: 'customerId',
+            select: '-password -role',
+          },
+          select: '-tableId',
+        })
+        .lean();
+      if (existedTable) {
+        const filterdReservation = existedTable.reservations.filter((ele) => {
+          return dayjs(ele.date).diff(dayjs(reservationDate)) >= 0;
+        });
+        existedTable.reservations = filterdReservation;
+        return transformResult(existedTable);
+      }
+      return null;
     } catch (error) {
       throw error;
     }
   }
   async findOriginalById(id: string) {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        return this.tableModel.findById(id).populate('reservations').lean();
-      } else {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new NotAcceptableException('This is not a valid table id');
       }
+      return this.tableModel.findById(id).populate('reservations').lean();
     } catch (error) {
       throw error;
     }

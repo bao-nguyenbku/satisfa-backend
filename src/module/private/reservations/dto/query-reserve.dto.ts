@@ -21,4 +21,8 @@ export class ReservationFilter {
   @IsBooleanString()
   @IsOptional()
   currentDate?: boolean;
+
+  @IsBooleanString()
+  @IsOptional()
+  checkedIn?: boolean;
 }
