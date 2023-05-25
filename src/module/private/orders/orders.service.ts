@@ -63,6 +63,7 @@ export class OrdersService {
         .sort({
           createdAt: -1,
         })
+        .limit(filter?.lastest === true ? 1 : 0)
         .lean();
       // return result;
       if (result && _.isArray(result)) {
@@ -80,6 +81,35 @@ export class OrdersService {
       throw error;
     }
   }
+  // async findByLastWeek() {
+  //   try {
+  //     const result = await this.orderModel
+  //       .find({cre})
+  //       .populate({
+  //         path: 'reservationId reservationId.tableId',
+  //       })
+  //       .populate('customerId', '-password -email -role')
+  //       .populate('paymentInfo', '-orderId')
+  //       .sort({
+  //         createdAt: -1,
+  //       })
+  //       .lean();
+  //     // return result;
+  //     if (result && _.isArray(result)) {
+  //       const newResult = result.map((obj) => {
+  //         delete obj.payment;
+  //         return {
+  //           ...obj,
+  //           totalItem: obj.items.reduce((prev, curr) => prev + curr.qty, 0),
+  //         };
+  //       });
+  //       return transformResult(newResult);
+  //     }
+  //     return [];
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
   async findById(id: string): Promise<Order> {
     try {
       const result = await this.orderModel
@@ -122,11 +152,11 @@ export class OrdersService {
           throw new BadRequestException('You must send takeaway information');
         }
         const { tempCustomer } = createOrderData;
-        console.log(createOrderData);
-        console.log(tempCustomer);
-        console.log(_.isEmpty(tempCustomer.name));
-        console.log(_.isNumber(tempCustomer.phone));
-        console.log(_.isEmpty(tempCustomer.takingTime));
+        // console.log(createOrderData);
+        // console.log(tempCustomer);
+        // console.log(_.isEmpty(tempCustomer.name));
+        // console.log(_.isNumber(tempCustomer.phone));
+        // console.log(_.isEmpty(tempCustomer.takingTime));
         if (
           !_.has(tempCustomer, 'name') ||
           !_.has(tempCustomer, 'phone') ||
@@ -175,6 +205,7 @@ export class OrdersService {
       if (_.isEmpty(createdPayment)) {
         return;
       }
+
       const { id: paymentId } = createdPayment;
       return this.update(id, {
         payment: paymentId,
@@ -187,7 +218,22 @@ export class OrdersService {
 
   async getOrderAmount() {
     try {
-      return this.orderModel.countDocuments();
+      let today = new Date();
+      const start = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const end = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+
+      const orders = await this.findByFilter();
+      const filterOrders = orders.filter(
+        (item) =>
+          new Date(item.createdAt).getTime() >= start &&
+          new Date(item.createdAt).getTime() <= end,
+      );
+      return filterOrders.length;
     } catch (error) {
       throw error;
     }

@@ -97,10 +97,24 @@ export class UsersService {
   }
   async countCustomer(): Promise<number> {
     try {
-      const customers = await this.userModel.countDocuments({
+      let today = new Date();
+      const start = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const end = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+      const customers = await this.userModel.find({
         role: Role.USER,
       });
-      return customers;
+      console.log(customers);
+      const filterCustomer = customers.filter(
+        (item) =>
+          new Date(item.createdAt).getTime() >= start &&
+          new Date(item.createdAt).getTime() <= end,
+      );
+      return filterCustomer.length;
     } catch (error) {
       throw error;
     }

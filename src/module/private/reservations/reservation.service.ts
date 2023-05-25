@@ -243,8 +243,22 @@ export class ReservationService {
 
   async countReservations(): Promise<number> {
     try {
-      const reservations = await this.reservationModel.countDocuments();
-      return reservations;
+      let today = new Date();
+      const start = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const end = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+      const reservations = await this.findByFilter();
+
+      const filterResevations = reservations.filter(
+        (item) =>
+          new Date(item.date).getTime() >= start &&
+          new Date(item.date).getTime() <= end,
+      );
+      return filterResevations.length;
     } catch (error) {
       throw error;
     }

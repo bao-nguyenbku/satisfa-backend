@@ -55,6 +55,22 @@ export class OrdersController {
     );
   }
 
+  @Get('lastest')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @Roles(Role.USER)
+  @UseFilters(MongoExceptionFilter)
+  async getLastestOrder(@Query() filter: OrderFilterDto, @Request() req) {
+    return this.orderService.findByFilter(
+      {
+        ...filter,
+        currentUser: true,
+        lastest: true,
+      },
+      req.user.id,
+    );
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)

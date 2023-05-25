@@ -91,6 +91,9 @@ export class Order {
     default: false,
   })
   isArchive: boolean;
+
+  @Prop()
+  createdAt?: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
