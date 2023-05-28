@@ -10,7 +10,7 @@ export enum ReservationStatus {
   RESERVED = 'RESERVED',
   CHECKED_IN = 'CHECKED_IN',
 }
-@Schema()
+@Schema({ timestamps: true })
 export class Reservation {
   @Prop({
     required: true,

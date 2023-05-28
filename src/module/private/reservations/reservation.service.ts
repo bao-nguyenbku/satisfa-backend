@@ -3,6 +3,7 @@ import {
   NotAcceptableException,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
 import * as dayjs from 'dayjs';
@@ -115,6 +116,9 @@ export class ReservationService {
       }
       if (!user) {
         throw new HttpException('User does not exist!', HttpStatus.NOT_FOUND);
+      }
+      if (dayjs(createReservationData.date).isBefore(dayjs())) {
+        throw new BadRequestException('Can not make a reservation in the pass');
       }
       let createdReservation;
       let reservations: mongoose.LeanDocument<Reservation>[];

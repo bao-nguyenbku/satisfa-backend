@@ -1,4 +1,12 @@
-import { OmitType } from '@nestjs/swagger';
-import { UserEntity } from '../entities/user.entity';
+import { IsString } from 'class-validator';
 
-export class CreateUserDto extends OmitType(UserEntity, ['id', 'phone']) {}
+export class CreateUserDto {
+  @IsString()
+  email: string;
+
+  @IsString()
+  fullname: string;
+
+  @IsString()
+  password: string;
+}

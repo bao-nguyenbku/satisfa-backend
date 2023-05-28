@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNumber } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import { Order } from '../orders/order.schema';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 
 export type PaymentDocument = HydratedDocument<Payment>;
 export enum PaymentType {
