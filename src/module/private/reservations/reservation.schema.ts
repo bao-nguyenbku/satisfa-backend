@@ -9,6 +9,7 @@ export type ReservatonDocument = HydratedDocument<Reservation>;
 export enum ReservationStatus {
   RESERVED = 'RESERVED',
   CHECKED_IN = 'CHECKED_IN',
+  CANCELED = 'CANCELED',
 }
 @Schema({ timestamps: true })
 export class Reservation {

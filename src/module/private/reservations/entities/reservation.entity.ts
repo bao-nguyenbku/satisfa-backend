@@ -1,24 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose from 'mongoose';
 import { TableEntity } from '../../tables/entities/table.entity';
 import { UserEntity } from '~/module/common/users/entities/user.entity';
+import {
+  IsEnum,
+  IsISO8601,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { ReservationStatus } from '../reservation.schema';
+import { Type } from 'class-transformer';
 
 export class ReservationEntity {
   @ApiProperty()
-  id: mongoose.Schema.Types.ObjectId;
+  @IsString()
+  id: string;
 
   @ApiProperty()
+  @ValidateNested()
+  @Type(() => UserEntity)
   customerId: UserEntity;
 
   @ApiProperty()
+  @ValidateNested()
+  @Type(() => TableEntity)
   tableId: TableEntity;
 
   @ApiProperty()
+  @IsNumber()
   numberOfGuests: number;
 
   @ApiProperty()
+  @IsISO8601()
   date: string;
 
   @ApiProperty()
   note: string;
+
+  @ApiProperty()
+  @IsEnum(ReservationStatus)
+  status: ReservationStatus;
 }

@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotAcceptableException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   BadRequestException,
@@ -21,7 +22,11 @@ import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
 import { transformResult } from '~/utils';
-import { GAP_BETWEEN_RESERVATIONS } from '~/constants';
+import {
+  GAP_BETWEEN_RESERVATIONS,
+  MILESTONE_CANCEL_RESERVATION,
+} from '~/constants';
+import { Role } from '~/constants/role.enum';
 
 Injectable();
 export class ReservationService {
@@ -213,12 +218,40 @@ export class ReservationService {
   }
   async update(id: string, updateReservationData: UpdateReservationDto) {
     try {
-      const updated = await this.reservationModel.updateOne(
-        { _id: id },
-        updateReservationData,
-        { runValidators: true },
-      );
-      return updated;
+      const updated = await this.reservationModel
+        .findByIdAndUpdate(id, updateReservationData, { runValidators: true })
+        .lean();
+      return transformResult(updated);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateByUser(
+    id: string,
+    updateReservationData: UpdateReservationDto,
+    user: any,
+  ) {
+    if (user.role !== Role.USER) {
+      throw new ForbiddenException('This use can not access');
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id');
+    }
+    try {
+      const reserve = await this.reservationModel.findById(id).lean();
+      const currentTime = dayjs();
+      if (
+        currentTime.diff(reserve.date, 'hour') < MILESTONE_CANCEL_RESERVATION
+      ) {
+        throw new BadRequestException(
+          'Can not cancel this reservation due to policy',
+        );
+      }
+
+      const updated = await this.reservationModel
+        .findByIdAndUpdate(id, updateReservationData, { runValidators: true })
+        .lean();
+      return transformResult(updated);
     } catch (error) {
       throw error;
     }

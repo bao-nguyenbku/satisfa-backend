@@ -108,7 +108,6 @@ export class UsersService {
       const customers = await this.userModel.find({
         role: Role.USER,
       });
-      console.log(customers);
       const filterCustomer = customers.filter(
         (item) =>
           new Date(item.createdAt).getTime() >= start &&
