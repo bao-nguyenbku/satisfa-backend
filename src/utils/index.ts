@@ -26,7 +26,7 @@ export function transformResult<T>(values: T): T {
     }
 
     return {
-      id: values['_id'] as string,
+      id: values['_id'] as unknown as string,
       ...cloneValues,
     } as T;
   }
