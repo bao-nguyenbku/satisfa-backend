@@ -17,7 +17,7 @@ export function transformResult<T>(values: T): T {
         };
       }
       return item;
-    }) as T;
+    }) as unknown as T;
   }
   if (_.isPlainObject(values) && _.has(values, '_id')) {
     const cloneValues = _.omit(values as any, ['_id', '__v']);
