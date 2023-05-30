@@ -30,13 +30,13 @@ export class Gateway
     });
   }
   async handleConnection(client: Socket) {
-    client.on('join-pos-room', (obj) => {
+    client.on('join-pos-room', () => {
       client.join(POS_ROOM);
     });
   }
   async handleDisconnect(client: Socket) {
     console.log('Disconnected client:', client.id);
-    client.leave(POS_ROOM);
+    // client.leave(POS_ROOM);
     client.disconnect();
   }
   @SubscribeMessage('call-waiter')
@@ -46,9 +46,8 @@ export class Gateway
       userId: string;
       reservations: ReservationEntity[];
     },
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
   ) {
-    console.log(body);
     const user = await this.userService.findById(body.userId);
 
     if (user) {
