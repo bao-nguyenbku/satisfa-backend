@@ -19,12 +19,10 @@ export class ProductService {
 
   async update(id: string, updateData: UpdateProductDto) {
     try {
-      const updated = await this.productModel.updateOne(
-        { _id: id },
-        updateData,
-        { runValidators: true },
-      );
-      return updated;
+      const updated = await this.productModel
+        .findByIdAndUpdate(id, updateData, { runValidators: true })
+        .lean();
+      return transformResult(updated);
     } catch (error) {
       throw error;
     }
