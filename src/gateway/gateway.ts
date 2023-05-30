@@ -45,10 +45,10 @@ export class Gateway
       userId: string;
       reservations: ReservationEntity[];
     },
-    // @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket,
   ) {
     // const user = await this.userService.findById(body.userId);
-
+    console.log(client);
     this.server.to(POS_ROOM).emit('onServe', {
       type: 'CALL_WAITER',
       reservations: body.reservations,
