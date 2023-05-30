@@ -10,7 +10,7 @@ import {
 import { OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 // import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
-// import { UsersService } from '~/module/common/users/user.service';
+import { UsersService } from '~/module/common/users/user.service';
 import { POS_ROOM } from '~/constants';
 import { ReservationEntity } from '~/module/private/reservations/entities/reservation.entity';
 
@@ -22,7 +22,7 @@ export class Gateway
 {
   @WebSocketServer()
   server: Server;
-
+  constructor(private readonly userService: UsersService) {}
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log('Socket is connected: ', socket.id);
@@ -35,7 +35,7 @@ export class Gateway
   }
   async handleDisconnect(client: Socket) {
     console.log('Disconnected client:', client.id);
-    // client.leave(POS_ROOM);
+    client.leave(POS_ROOM);
     client.disconnect();
   }
   @SubscribeMessage('call-waiter')
@@ -47,12 +47,14 @@ export class Gateway
     },
     @ConnectedSocket() client: Socket,
   ) {
-    // const user = await this.userService.findById(body.userId);
-    console.log(client);
-    this.server.to(POS_ROOM).emit('onServe', {
-      type: 'CALL_WAITER',
-      reservations: body.reservations,
-    });
+    const user = await this.userService.findById(body.userId);
+    if (user) {
+      this.server.to(POS_ROOM).emit('onServe', {
+        user,
+        type: 'CALL_WAITER',
+        reservations: body.reservations,
+      });
+    }
   }
 
   @SubscribeMessage('disconnect')
