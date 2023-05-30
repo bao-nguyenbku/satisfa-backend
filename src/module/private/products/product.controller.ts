@@ -52,7 +52,7 @@ export class ProductController {
   async updateProduct(
     @Body() updateData: UpdateProductDto,
     @Param('id') id: string,
-  ) {
+  ): Promise<any> {
     return this.productService.update(id, updateData);
   }
 
@@ -61,7 +61,7 @@ export class ProductController {
   @Roles(Role.ADMIN)
   @UseFilters(MongoExceptionFilter)
   @UsePipes(ValidationPipe)
-  async deleteProduct(@Param('id') id: string) {
+  async deleteProduct(@Param('id') id: string): Promise<any> {
     return this.productService.delete(id);
   }
 }

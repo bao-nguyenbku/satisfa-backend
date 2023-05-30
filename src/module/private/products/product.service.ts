@@ -17,7 +17,7 @@ export class ProductService {
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
-  async update(id: string, updateData: UpdateProductDto) {
+  async update(id: string, updateData: UpdateProductDto): Promise<any> {
     try {
       const updated = await this.productModel
         .findByIdAndUpdate(id, updateData, { runValidators: true })
@@ -85,7 +85,7 @@ export class ProductService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<any> {
     try {
       const deleted = await this.productModel.deleteOne({ _id: id }).lean();
       return deleted;

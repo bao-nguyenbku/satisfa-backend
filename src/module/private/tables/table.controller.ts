@@ -40,7 +40,7 @@ export class TableController {
   async updateTable(
     @Param('id') id: string,
     @Body() updateTableData: UpdateTableDto,
-  ) {
+  ): Promise<any> {
     return this.tableService.update(id, updateTableData);
   }
 
