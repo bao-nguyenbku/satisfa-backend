@@ -20,7 +20,7 @@ import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
 import { User, UserDocument } from '~/module/common/users/user.schema';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 
 @Injectable({ scope: Scope.REQUEST })
 export class OrdersService {
@@ -38,8 +38,13 @@ export class OrdersService {
         filterObj['status'] = status;
       }
       if (currentDate) {
-        const current = new Date();
-        const tomorrow = new Date(current.getTime() + 24 * 60 * 60 * 1000);
+        const current = dayjs()
+          .set('hour', 0)
+          .set('minute', 0)
+          .set('second', 0)
+          .set('millisecond', 0);
+        const tomorrow = current.add(1, 'day');
+
         filterObj['createdAt'] = {
           $gte: current.toISOString(),
           $lt: tomorrow.toISOString(),

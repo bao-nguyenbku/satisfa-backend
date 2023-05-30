@@ -137,7 +137,6 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async getBestSeller(@Query() filter: number) {
-    console.log('filter', filter);
     return this.orderService.getBestSeller(filter);
   }
 }
