@@ -10,7 +10,7 @@ import {
 import { OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 // import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
-import { UsersService } from '~/module/common/users/user.service';
+// import { UsersService } from '~/module/common/users/user.service';
 import { POS_ROOM } from '~/constants';
 import { ReservationEntity } from '~/module/private/reservations/entities/reservation.entity';
 
@@ -20,7 +20,6 @@ import { ReservationEntity } from '~/module/private/reservations/entities/reserv
 export class Gateway
   implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly userService: UsersService) {}
   @WebSocketServer()
   server: Server;
 
@@ -48,15 +47,12 @@ export class Gateway
     },
     // @ConnectedSocket() client: Socket,
   ) {
-    const user = await this.userService.findById(body.userId);
+    // const user = await this.userService.findById(body.userId);
 
-    if (user) {
-      this.server.to(POS_ROOM).emit('onServe', {
-        user,
-        type: 'CALL_WAITER',
-        reservations: body.reservations,
-      });
-    }
+    this.server.to(POS_ROOM).emit('onServe', {
+      type: 'CALL_WAITER',
+      reservations: body.reservations,
+    });
   }
 
   @SubscribeMessage('disconnect')
