@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
-export function transformResult<T>(values: T): T {
+export function transformResult(values: any) {
   if (_.isArray(values)) {
     return values.map((item) => {
       if (_.isPlainObject(item) && _.has(item, '_id')) {
@@ -17,7 +17,7 @@ export function transformResult<T>(values: T): T {
         };
       }
       return item;
-    }) as unknown as T;
+    });
   }
   if (_.isPlainObject(values) && _.has(values, '_id')) {
     const cloneValues = _.omit(values as any, ['_id', '__v']);
@@ -28,7 +28,7 @@ export function transformResult<T>(values: T): T {
     return {
       id: values['_id'],
       ...cloneValues,
-    } as unknown as T;
+    };
   }
   return values;
 }

@@ -1,6 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBooleanString,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class ProductEntity {
   @ApiProperty()
@@ -29,7 +34,7 @@ export class ProductEntity {
   images: string[];
 
   @ApiProperty()
-  @IsBoolean()
+  @IsBooleanString()
   @IsOptional()
   visible: boolean;
 }
