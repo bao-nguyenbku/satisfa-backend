@@ -8,10 +8,10 @@ export class HashService {
 
   async hashPassword(password: string) {
     const saltOrRounds = this.configService.get('bcryptSaltRounds');
-    return await bcrypt.hash(password, saltOrRounds);
+    return bcrypt.hash(password, saltOrRounds);
   }
 
   async comparePassword(password: string, hash: string) {
-    return await bcrypt.compare(password, hash);
+    return bcrypt.compare(password, hash);
   }
 }
