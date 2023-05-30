@@ -25,8 +25,6 @@ export class CategoryController {
   @Get()
   @UseFilters(MongoExceptionFilter)
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.USER)
   async getAllCategory() {
     return this.categoryService.findAll();
   }

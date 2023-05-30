@@ -55,6 +55,22 @@ export class OrdersController {
     );
   }
 
+  @Get('lastest')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @Roles(Role.USER)
+  @UseFilters(MongoExceptionFilter)
+  async getLastestOrder(@Query() filter: OrderFilterDto, @Request() req) {
+    return this.orderService.findByFilter(
+      {
+        ...filter,
+        currentUser: true,
+        lastest: true,
+      },
+      req.user.id,
+    );
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
@@ -84,7 +100,7 @@ export class OrdersController {
   }
   @Patch(':id/paid')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.USER)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async paidOrder(@Param('id') id: string, @Body() paymentData: PaidOrderDto) {
@@ -121,7 +137,6 @@ export class OrdersController {
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async getBestSeller(@Query() filter: number) {
-    console.log('filter', filter);
     return this.orderService.getBestSeller(filter);
   }
 }

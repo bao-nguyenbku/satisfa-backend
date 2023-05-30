@@ -44,7 +44,6 @@ export class Gateway
     @MessageBody()
     body: {
       userId: string;
-      type: 'CALL_WAITER';
       reservations: ReservationEntity[];
     },
     @ConnectedSocket() client: Socket,

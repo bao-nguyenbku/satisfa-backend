@@ -15,6 +15,7 @@ import { Role } from '~/constants/role.enum';
 import * as _ from 'lodash';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -63,6 +64,16 @@ export class UsersService {
       throw error;
     }
   }
+  async updatePassword(id: string, updateData: UpdatePasswordDto) {
+    console.log(updateData, this.verifyPassword(id, updateData.password));
+  }
+  async verifyPassword(id: string, password: string) {
+    const user = await this.userModel.findById(id).lean();
+    if (!user) {
+      throw new BadRequestException('Can not find user');
+    }
+    return this.hashService.comparePassword(password, user.password);
+  }
   async findAll(): Promise<UserDataDto[]> {
     try {
       const userList = await this.userModel
@@ -97,10 +108,23 @@ export class UsersService {
   }
   async countCustomer(): Promise<number> {
     try {
-      const customers = await this.userModel.countDocuments({
+      let today = new Date();
+      const start = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const end = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+      const customers = await this.userModel.find({
         role: Role.USER,
       });
-      return customers;
+      const filterCustomer = customers.filter(
+        (item) =>
+          new Date(item.createdAt).getTime() >= start &&
+          new Date(item.createdAt).getTime() <= end,
+      );
+      return filterCustomer.length;
     } catch (error) {
       throw error;
     }

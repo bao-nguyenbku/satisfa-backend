@@ -39,7 +39,7 @@ export class ReservationController {
 
   @Get(':id')
   @UseFilters(MongoExceptionFilter)
-  async getTableById(@Param('id') id: string) {
+  async getReservationById(@Param('id') id: string) {
     return await this.reservationService.findById(id);
   }
 
@@ -51,22 +51,40 @@ export class ReservationController {
     return this.reservationService.create(createReservationData);
   }
 
-  @Patch(':id')
+  @Patch('admin/:id')
   @UseGuards(JwtAuthGuard)
   @UseFilters(MongoExceptionFilter)
   @UsePipes(ValidationPipe)
-  async updateTable(
+  async updateReservationByAdmin(
     @Param('id') id: string,
     @Body() updateReservationData: UpdateReservationDto,
   ) {
     return this.reservationService.update(id, updateReservationData);
+  }
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
+  async updateReservation(
+    @Param('id') id: string,
+    @Body() updateReservationData: UpdateReservationDto,
+    @Request() req,
+  ) {
+    return this.reservationService.updateByUser(
+      id,
+      updateReservationData,
+      req.user,
+    );
   }
 
   @Delete(':id/:tableId')
   @UseGuards(JwtAuthGuard)
   @UseFilters(MongoExceptionFilter)
   @UsePipes(ValidationPipe)
-  async delete(@Param('id') id: string, @Param('tableId') tableId: string) {
+  async deleteReservationById(
+    @Param('id') id: string,
+    @Param('tableId') tableId: string,
+  ) {
     return this.reservationService.delete(id, tableId);
   }
 }
