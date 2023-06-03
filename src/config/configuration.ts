@@ -18,4 +18,9 @@ export default () => ({
   cloudinaryName: process.env.CLOUDINARY_NAME,
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinarySecret: process.env.CLOUDINARY_SECRET,
+  googleApiKey: process.env.GOOGLE_API_KEY,
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  googleEmailUser: process.env.GOOGLE_EMAIL_USER,
+  googleRefreshToken: process.env.GOOGLE_REFRESH_TOKEN,
 });

@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
 import * as dayjs from 'dayjs';
@@ -27,6 +28,7 @@ import {
   MILESTONE_CANCEL_RESERVATION,
 } from '~/constants';
 import { Role } from '~/constants/role.enum';
+import { ReservationEntity } from './entities/reservation.entity';
 
 Injectable();
 export class ReservationService {
@@ -37,6 +39,7 @@ export class ReservationService {
     private readonly userService: UsersService,
   ) {}
   async findByFilter(filter?: ReservationFilter, userId?: string) {
+    this.updateReservationStatus();
     try {
       if (_.isEmpty(filter)) {
         const result = await this.reservationModel
@@ -82,7 +85,49 @@ export class ReservationService {
       throw error;
     }
   }
-
+  async findNearestByEmail(email: string): Promise<ReservationEntity[]> {
+    try {
+      const user = await this.userService.findByEmail(email);
+      if (!user) {
+        throw new NotFoundException('Can not find this user');
+      }
+      const reservations = await this.reservationModel
+        .find({
+          customerId: user.id,
+          status: ReservationStatus.RESERVED,
+        })
+        .sort({ date: 1 })
+        .limit(1)
+        .populate('tableId')
+        .populate('customerId', 'fullname avatar')
+        .lean();
+      return transformResult(reservations);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateReservationStatus() {
+    try {
+      const updated = await this.reservationModel.updateMany(
+        {
+          date: {
+            $lt: dayjs()
+              .set('hour', 0)
+              .set('minute', 0)
+              .set('second', 0)
+              .set('millisecond', 0)
+              .toISOString(),
+          },
+        },
+        {
+          status: ReservationStatus.CANCELED,
+        },
+      );
+      return updated;
+    } catch (error) {
+      throw error;
+    }
+  }
   async findById(id: string) {
     try {
       if (!mongoose.Types.ObjectId.isValid(id))

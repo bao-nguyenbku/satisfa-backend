@@ -19,6 +19,9 @@ import { MomoModule } from './module/common/momo/momo.module';
 import { AnalysisModule } from './module/private/analysis/analysis.module';
 import { ReviewsModule } from './module/private/reviews/reviews.module';
 import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module';
+import { MailModule } from './module/private/mail/mail.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 
 @Module({
   imports: [
@@ -44,6 +47,17 @@ import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module'
     MomoModule,
     ReviewsModule,
     CloudinaryModule,
+    MailModule,
+    MailerModule.forRoot({
+      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
+      template: {
+        dir: process.cwd() + '/src/module/private/mail/templates/',
+        adapter: new EjsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
   ],
   controllers: [AppController],
 })
