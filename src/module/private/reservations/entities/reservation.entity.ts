@@ -2,9 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TableEntity } from '../../tables/entities/table.entity';
 import { UserEntity } from '~/module/common/users/entities/user.entity';
 import {
+  IsBoolean,
   IsEnum,
   IsISO8601,
   IsNumber,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -40,4 +42,8 @@ export class ReservationEntity {
   @ApiProperty()
   @IsEnum(ReservationStatus)
   status: ReservationStatus;
+
+  @IsBoolean()
+  @IsOptional()
+  isRemind: boolean;
 }

@@ -85,21 +85,18 @@ export class ReservationService {
       throw error;
     }
   }
-  async findNearestByEmail(email: string): Promise<ReservationEntity[]> {
+  async findNearestReserved(): Promise<ReservationEntity[]> {
     try {
-      const user = await this.userService.findByEmail(email);
-      if (!user) {
-        throw new NotFoundException('Can not find this user');
-      }
       const reservations = await this.reservationModel
         .find({
-          customerId: user.id,
           status: ReservationStatus.RESERVED,
+          date: {
+            $gte: dayjs().toISOString(),
+          },
         })
         .sort({ date: 1 })
-        .limit(1)
         .populate('tableId')
-        .populate('customerId', 'fullname avatar')
+        .populate('customerId', 'fullname avatar email')
         .lean();
       return transformResult(reservations);
     } catch (error) {

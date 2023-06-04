@@ -9,17 +9,12 @@ export class MailController {
     readonly reservationService: ReservationService,
   ) {}
 
-  @Post('remind-reservation')
-  public async remindReservation(@Body() sendData: { email: string }) {
+  @Get('remind-reservation')
+  public async remindReservation() {
     try {
-      const reservations = await this.reservationService.findNearestByEmail(
-        sendData.email,
-      );
+      const reservations = await this.reservationService.findNearestReserved();
       if (reservations && reservations.length > 0) {
-        return this.mailService.remindReservation({
-          to: sendData.email,
-          content: reservations[0],
-        });
+        return this.mailService.remindReservation(reservations);
       }
     } catch (error) {
       throw error;

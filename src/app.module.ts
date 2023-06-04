@@ -22,6 +22,7 @@ import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module'
 import { MailModule } from './module/private/mail/mail.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { ReminderModule } from './module/private/reminder/reminder.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
         },
       },
     }),
+    ReminderModule,
   ],
   controllers: [AppController],
 })
