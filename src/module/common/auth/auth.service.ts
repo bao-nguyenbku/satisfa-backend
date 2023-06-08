@@ -88,4 +88,12 @@ export class AuthService {
       accessToken: this.generateAccessToken(user),
     };
   }
+  async validateUserById(id: string) {
+    try {
+      const user = await this.usersService.findById(id);
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

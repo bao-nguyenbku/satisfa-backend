@@ -5,6 +5,7 @@ import {
   Request,
   Post,
   Body,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -46,14 +47,16 @@ export class AuthController {
   @Get('me')
   async whoAmI(@Request() req) {
     const { id } = req.user;
-    const user = await this.userService.findById(id);
-    if (user) {
-      return {
-        id,
-        email: user.email,
-        fullname: user.fullname,
-        avatar: user.avatar,
-      };
+    const user = await this.authService.validateUserById(id);
+    if (!user) {
+      throw new UnauthorizedException();
     }
+
+    return {
+      id,
+      email: user.email,
+      fullname: user.fullname,
+      avatar: user.avatar,
+    };
   }
 }

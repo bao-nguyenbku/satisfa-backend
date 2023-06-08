@@ -3,7 +3,6 @@ import { google } from 'googleapis';
 import { Options } from 'nodemailer/lib/smtp-transport';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
-import { RemindReservationDto } from './dto/remind-reservation.dto';
 import * as dayjs from 'dayjs';
 import { ReservationEntity } from '../reservations/entities/reservation.entity';
 import { ReservationService } from '../reservations/reservation.service';
