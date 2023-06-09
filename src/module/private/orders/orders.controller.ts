@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
-import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '~/module/common/auth/guards/access-auth.guard';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderFilterDto } from './dto/query-order.dto';

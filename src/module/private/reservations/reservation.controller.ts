@@ -18,10 +18,10 @@ import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { ReservationService } from './reservation.service';
 import { ReservationFilter } from './dto/query-reserve.dto';
-import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
-import { Roles } from '~/module/common/auth/roles.decorator';
-import { Role } from '~/constants/role.enum';
-import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
+import { JwtAuthGuard } from '~/module/common/auth/guards/access-auth.guard';
+// import { Roles } from '~/module/common/auth/roles.decorator';
+// import { Role } from '~/constants/role.enum';
+// import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
 
 @Controller('reservations')
 export class ReservationController {

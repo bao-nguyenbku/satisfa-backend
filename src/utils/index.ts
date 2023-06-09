@@ -2,9 +2,9 @@ import * as _ from 'lodash';
 import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
-export function transformResult<T>(values: T): T {
+export function transformResult(values: any) {
   if (_.isArray(values)) {
-    return values.map((item) => {
+    return values.map((item: any) => {
       if (_.isPlainObject(item) && _.has(item, '_id')) {
         const cloneItem = _.omit(item, ['_id', '__v']);
         for (const subItem in cloneItem) {
@@ -14,10 +14,10 @@ export function transformResult<T>(values: T): T {
         return {
           id: item['_id'],
           ...cloneItem,
-        };
+        } as any;
       }
       return item;
-    }) as T;
+    });
   }
   if (_.isPlainObject(values) && _.has(values, '_id')) {
     const cloneValues = _.omit(values as any, ['_id', '__v']);
@@ -26,9 +26,9 @@ export function transformResult<T>(values: T): T {
     }
 
     return {
-      id: values['_id'] as string,
+      id: values['_id'],
       ...cloneValues,
-    } as T;
+    };
   }
   return values;
 }

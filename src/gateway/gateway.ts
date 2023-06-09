@@ -20,17 +20,16 @@ import { ReservationEntity } from '~/module/private/reservations/entities/reserv
 export class Gateway
   implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly userService: UsersService) {}
   @WebSocketServer()
   server: Server;
-
+  constructor(private readonly userService: UsersService) {}
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log('Socket is connected: ', socket.id);
     });
   }
   async handleConnection(client: Socket) {
-    client.on('join-pos-room', (obj) => {
+    client.on('join-pos-room', () => {
       client.join(POS_ROOM);
     });
   }
@@ -48,9 +47,7 @@ export class Gateway
     },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(body);
     const user = await this.userService.findById(body.userId);
-
     if (user) {
       this.server.to(POS_ROOM).emit('onServe', {
         user,
