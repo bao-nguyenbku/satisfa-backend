@@ -47,7 +47,8 @@ export class ReservationService {
         return transformResult(result);
       }
       const filterObj = {};
-      const { currentDate, currentUser, date, user, checkedIn } = filter;
+      const { currentDate, currentUser, date, user, checkedIn, fromNow } =
+        filter;
       if (currentDate) {
         const current = dayjs()
           .set('hour', 0)
@@ -68,6 +69,18 @@ export class ReservationService {
       }
       if (date) {
         filterObj['date'] = date;
+      }
+      if (fromNow) {
+        const current = dayjs()
+          .set('hour', 0)
+          .set('minute', 0)
+          .set('second', 0)
+          .set('millisecond', 0);
+        const tomorrow = current.add(1000, 'day');
+        filterObj['date'] = {
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
+        };
       }
       if (checkedIn) {
         filterObj['status'] = ReservationStatus.CHECKED_IN;
