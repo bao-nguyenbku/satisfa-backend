@@ -9,7 +9,10 @@ import {
 } from '@nestjs/websockets';
 import { OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
+// import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
+import { UsersService } from '~/module/common/users/user.service';
+import { POS_ROOM } from '~/constants';
+import { ReservationEntity } from '~/module/private/reservations/entities/reservation.entity';
 
 @WebSocketGateway({
   cors: true,
@@ -17,7 +20,7 @@ import { SatisgiService } from '~/module/private/satisgi/satisgi.service';
 export class Gateway
   implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly satisgiService: SatisgiService) {}
+  constructor(private readonly userService: UsersService) {}
   @WebSocketServer()
   server: Server;
 
@@ -27,27 +30,32 @@ export class Gateway
     });
   }
   async handleConnection(client: Socket) {
-    client.on('join-room', (room) => {
-      console.log('Joinning....', room);
-      client.join(room);
+    client.on('join-pos-room', (obj) => {
+      client.join(POS_ROOM);
     });
   }
   async handleDisconnect(client: Socket) {
     console.log('Disconnected client:', client.id);
+    client.leave(POS_ROOM);
     client.disconnect();
   }
-  @SubscribeMessage('chat')
+  @SubscribeMessage('call-waiter')
   async onNewMessage(
-    @MessageBody() body: any,
+    @MessageBody()
+    body: {
+      userId: string;
+      reservations: ReservationEntity[];
+    },
     @ConnectedSocket() client: Socket,
   ) {
-    this.server.to(client.id).emit('typing');
-    const botMessage = await this.satisgiService.getRandomMessage();
-    if (botMessage) {
-      this.server.to(client.id).emit('off-typing');
-      this.server.to(client.id).emit('onMessage', {
-        message: botMessage,
-        user: 'satisgi',
+    console.log(body);
+    const user = await this.userService.findById(body.userId);
+
+    if (user) {
+      this.server.to(POS_ROOM).emit('onServe', {
+        user,
+        type: 'CALL_WAITER',
+        reservations: body.reservations,
       });
     }
   }
@@ -55,5 +63,6 @@ export class Gateway
   @SubscribeMessage('disconnect')
   onDisconnect(@ConnectedSocket() client: Socket) {
     console.log('Disconnected:', client);
+    client.disconnect();
   }
 }

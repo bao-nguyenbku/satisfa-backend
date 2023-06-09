@@ -5,6 +5,7 @@ export class CreateReservationDto extends PickType(ReservationEntity, [
   'numberOfGuests',
   'date',
   'note',
+  'status',
 ]) {
   customerId: string;
   tableId: string;

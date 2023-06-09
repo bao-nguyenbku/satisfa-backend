@@ -55,13 +55,13 @@ export class AnalysisController {
     return this.analysisService.countReservation();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   @Get('orders/bestseller')
-  async getBestseller(@Query() query: any) {
-    return this.analysisService.bestSeller(query.amount);
+  async getBestseller(@Query() filter: any) {
+    return this.analysisService.bestSeller(filter);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

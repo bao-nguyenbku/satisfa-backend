@@ -9,4 +9,13 @@ export class OrderFilterDto {
   @IsBooleanString()
   @IsOptional()
   currentUser?: boolean;
+
+
+  @IsOptional()
+  @IsBooleanString()
+  lastest?: boolean;
+
+  @IsBooleanString()
+  @IsOptional()
+  currentDate?: boolean;
 }

@@ -14,16 +14,10 @@ import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { TableService, TableFilter } from './table.service';
 // import { TableStatus } from './table.schema';
-import * as _ from 'lodash';
 
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
-
-  @Get()
-  async getAllTable(@Query() filter: TableFilter) {
-    return this.tableService.findAllByFilter(filter);
-  }
 
   @Get(':id')
   @UseFilters(MongoExceptionFilter)

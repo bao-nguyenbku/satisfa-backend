@@ -3,7 +3,12 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '~/module/common/users/user.schema';
 import { Reservation } from '../reservations/reservation.schema';
 import { Product } from '../products/product.schema';
-import { IsString, IsNumber, IsNotEmpty, IsNumberString } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsNotEmpty,
+  IsNumberString,
+} from 'class-validator';
 // import { Payment } from '~/module/private/payment/payment.schema';
 // import { TakeawayCustomer } from './entities/order.entity';
 
@@ -83,9 +88,12 @@ export class Order {
 
   @Prop({
     required: false,
-    default: true,
+    default: false,
   })
   isArchive: boolean;
+
+  @Prop()
+  createdAt?: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

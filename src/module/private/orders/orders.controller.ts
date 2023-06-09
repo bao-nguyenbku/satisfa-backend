@@ -55,6 +55,22 @@ export class OrdersController {
     );
   }
 
+  @Get('lastest')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @Roles(Role.USER)
+  @UseFilters(MongoExceptionFilter)
+  async getLastestOrder(@Query() filter: OrderFilterDto, @Request() req) {
+    return this.orderService.findByFilter(
+      {
+        ...filter,
+        currentUser: true,
+        lastest: true,
+      },
+      req.user.id,
+    );
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
@@ -84,7 +100,7 @@ export class OrdersController {
   }
   @Patch(':id/paid')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.USER)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
   async paidOrder(@Param('id') id: string, @Body() paymentData: PaidOrderDto) {
@@ -99,8 +115,22 @@ export class OrdersController {
     return this.orderService.create(createOrderData);
   }
 
+  @Post('createTemp')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async createTempOrder(@Body() createOrderData: CreateOrderDto) {
+    return this.orderService.createTemp(createOrderData);
+  }
+
+  @Post('create-guest')
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async createOrderByGuest(@Body() createOrderData: CreateOrderDto) {
+    return this.orderService.create(createOrderData);
+  }
   // ANALYSIS
-  @Get('/count')
+  @Get('count')
   @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
@@ -114,7 +144,7 @@ export class OrdersController {
   @Roles(Role.ADMIN)
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)
-  async getBestSeller() {
-    return this.orderService.getBestSeller(5);
+  async getBestSeller(@Query() filter: number) {
+    return this.orderService.getBestSeller(filter);
   }
 }

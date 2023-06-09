@@ -48,11 +48,13 @@ export class AuthController {
     const { id } = req.user;
     const user = await this.userService.findById(id);
     if (user) {
+      console.log(user);
       return {
         id,
         email: user.email,
         fullname: user.fullname,
         avatar: user.avatar,
+        phone: user.phone ? user.phone : '',
       };
     }
   }

@@ -41,11 +41,30 @@ export class AnalysisService {
 
   async calculateRevenueFromOrder() {
     try {
+      let today = new Date();
       const orders = await this.orderService.findByFilter();
-      const revenue = orders.reduce((prev, curr) => prev + curr.totalCost, 0);
+      // F = first, L = Last, D = Day, W = week;
+      const FDLW = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const LDLW = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+
+      const filterOrders = orders.filter(
+        (item) =>
+          new Date(item.createdAt).getTime() >= FDLW &&
+          new Date(item.createdAt).getTime() <= LDLW,
+      );
+
+      const revenue = filterOrders.reduce(
+        (prev, curr) => prev + curr.totalCost,
+        0,
+      );
       return {
         totalRevenue: revenue,
-        allOrders: orders,
+        allOrders: filterOrders,
       };
     } catch (error) {
       throw error;
@@ -112,15 +131,23 @@ export class AnalysisService {
     }
   }
 
-
   async getTotalpayByUser() {
     try {
       const userList = await this.orderService.getTotalpayByUser();
-      return userList;
-     } catch(error) {
+      return userList.map((user) => {
+        const id = user._id;
+        delete user._id;
+        return {
+          ...user,
+          fullname: user?.fullname[0],
+          avatar: user?.avatar[0],
+          id,
+        };
+      });
+    } catch (error) {
       throw error;
-     }
- }
+    }
+  }
 
   async calculateRatingQuality() {
     try {
@@ -194,8 +221,7 @@ export class AnalysisService {
           },
         ],
       };
-    } 
-    catch (error) {
+    } catch (error) {
       throw error;
     }
   }

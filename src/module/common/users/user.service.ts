@@ -1,4 +1,8 @@
-import { Injectable, NotAcceptableException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CreateUserDto } from '~/module/common/users/dto/create-user.dto';
@@ -11,6 +15,7 @@ import { Role } from '~/constants/role.enum';
 import * as _ from 'lodash';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -21,28 +26,25 @@ export class UsersService {
 
   async findById(id: string) {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const user = await this.userModel.findById(id).lean();
-        if (user) {
-          return transformResult(user);
-        }
-        return null;
-      } else {
-        throw new NotAcceptableException('This is not a valid id');
+      if (!mongoose.Types.ObjectId.isValid(id))
+        throw new NotAcceptableException(id + ' is not a valid id');
+
+      const user = await this.userModel.findById(id).lean();
+      if (user) {
+        const resUser = _.omit(user, ['password', 'role']);
+        return transformResult(resUser);
       }
+      return null;
     } catch (error) {
       throw error;
     }
   }
-  async findByEmail(email: string): Promise<UserEntity> {
+  // !PRIVATE SERVICE
+  async findByEmail(email: string) {
     try {
       const existedEmail = await this.userModel.findOne({ email }).lean();
       if (existedEmail) {
-        return transformResult({
-          ...existedEmail,
-          id: existedEmail._id.toString(),
-          role: existedEmail.role as Role,
-        });
+        return transformResult(existedEmail);
       }
     } catch (error) {
       throw error;
@@ -61,6 +63,16 @@ export class UsersService {
     } catch (error) {
       throw error;
     }
+  }
+  async updatePassword(id: string, updateData: UpdatePasswordDto) {
+    console.log(updateData, this.verifyPassword(id, updateData.password));
+  }
+  async verifyPassword(id: string, password: string) {
+    const user = await this.userModel.findById(id).lean();
+    if (!user) {
+      throw new BadRequestException('Can not find user');
+    }
+    return this.hashService.comparePassword(password, user.password);
   }
   async findAll(): Promise<UserDataDto[]> {
     try {
@@ -96,10 +108,23 @@ export class UsersService {
   }
   async countCustomer(): Promise<number> {
     try {
-      const customers = await this.userModel.countDocuments({
+      let today = new Date();
+      const start = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const end = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+      const customers = await this.userModel.find({
         role: Role.USER,
       });
-      return customers;
+      const filterCustomer = customers.filter(
+        (item) =>
+          new Date(item.createdAt).getTime() >= start &&
+          new Date(item.createdAt).getTime() <= end,
+      );
+      return filterCustomer.length;
     } catch (error) {
       throw error;
     }

@@ -16,6 +16,7 @@ export class ProductEntity {
   category: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty()
   description: string;
 

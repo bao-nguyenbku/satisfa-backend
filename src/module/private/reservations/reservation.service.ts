@@ -1,8 +1,10 @@
 import {
   Injectable,
   NotAcceptableException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
 import * as dayjs from 'dayjs';
@@ -12,6 +14,7 @@ import { CreateReservationDto } from './dto/create-reserve.dto';
 import mongoose from 'mongoose';
 import {
   Reservation,
+  ReservationStatus,
   ReservatonDocument,
 } from '~/module/private/reservations/reservation.schema';
 import { ReservationFilter } from './dto/query-reserve.dto';
@@ -19,7 +22,11 @@ import { UpdateReservationDto } from './dto/update-reserve.dto';
 import { TableService } from '../tables/table.service';
 import { UsersService } from '~/module/common/users/user.service';
 import { transformResult } from '~/utils';
-import { GAP_BETWEEN_RESERVATIONS } from '~/constants';
+import {
+  GAP_BETWEEN_RESERVATIONS,
+  MILESTONE_CANCEL_RESERVATION,
+} from '~/constants';
+import { Role } from '~/constants/role.enum';
 
 Injectable();
 export class ReservationService {
@@ -40,10 +47,18 @@ export class ReservationService {
         return transformResult(result);
       }
       const filterObj = {};
-      const { currentDate, currentUser, date, user } = filter;
+      const { currentDate, currentUser, date, user, checkedIn, fromNow } =
+        filter;
       if (currentDate) {
+        const current = dayjs()
+          .set('hour', 0)
+          .set('minute', 0)
+          .set('second', 0)
+          .set('millisecond', 0);
+        const tomorrow = current.add(1, 'day');
         filterObj['date'] = {
-          $gte: new Date().toISOString(),
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
         };
       }
       if (currentUser) {
@@ -55,10 +70,24 @@ export class ReservationService {
       if (date) {
         filterObj['date'] = date;
       }
-
+      if (fromNow) {
+        const current = dayjs()
+          .set('hour', 0)
+          .set('minute', 0)
+          .set('second', 0)
+          .set('millisecond', 0);
+        const tomorrow = current.add(1000, 'day');
+        filterObj['date'] = {
+          $gte: current.toISOString(),
+          $lt: tomorrow.toISOString(),
+        };
+      }
+      if (checkedIn) {
+        filterObj['status'] = ReservationStatus.CHECKED_IN;
+      }
       const result = await this.reservationModel
         .find(filterObj)
-        .populate('tableId')
+        .populate('tableId', '-reservations')
         .populate('customerId', 'fullname avatar')
         .lean();
       return transformResult(result);
@@ -69,16 +98,15 @@ export class ReservationService {
 
   async findById(id: string) {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const reservation = await this.reservationModel.findById(id).lean();
-        // TODO Handle case product null;
-        if (reservation) {
-          return transformResult(reservation);
-        }
-        return null;
-      } else {
+      if (!mongoose.Types.ObjectId.isValid(id))
         throw new NotAcceptableException('This is not a valid id');
+
+      const reservation = await this.reservationModel.findById(id).lean();
+      // TODO Handle case product null;
+      if (reservation) {
+        return transformResult(reservation);
       }
+      return null;
     } catch (error) {
       throw error;
     }
@@ -86,7 +114,7 @@ export class ReservationService {
   async noValidateCreate(createReservationData: CreateReservationDto) {
     try {
       const newReservation = new this.reservationModel(createReservationData);
-      return newReservation.save();
+      return (await newReservation.save()).toObject();
     } catch (error) {
       throw error;
     }
@@ -107,12 +135,14 @@ export class ReservationService {
       if (!user) {
         throw new HttpException('User does not exist!', HttpStatus.NOT_FOUND);
       }
+      if (dayjs(createReservationData.date).isBefore(dayjs())) {
+        throw new BadRequestException('Can not make a reservation in the pass');
+      }
+      let createdReservation;
       let reservations: mongoose.LeanDocument<Reservation>[];
       let isAvailable = false;
       if (_.isEmpty(checkingTable.reservations)) {
-        const createdReservation = await this.noValidateCreate(
-          createReservationData,
-        );
+        createdReservation = await this.noValidateCreate(createReservationData);
         isAvailable = true;
         console.log('Empty');
         reservations = [...checkingTable.reservations, createdReservation];
@@ -125,12 +155,10 @@ export class ReservationService {
         ) <
         -1 * GAP_BETWEEN_RESERVATIONS
       ) {
-        console.error(
+        console.log(
           `${createReservationData.date} smaller than ${checkingTable.reservations[0].date}`,
         );
-        const createdReservation = await this.noValidateCreate(
-          createReservationData,
-        );
+        createdReservation = await this.noValidateCreate(createReservationData);
         isAvailable = true;
         reservations = [createdReservation, ...checkingTable.reservations];
       }
@@ -150,9 +178,7 @@ export class ReservationService {
               .date
           }`,
         );
-        const createdReservation = await this.noValidateCreate(
-          createReservationData,
-        );
+        createdReservation = await this.noValidateCreate(createReservationData);
         isAvailable = true;
         reservations = [...checkingTable.reservations, createdReservation];
       }
@@ -175,7 +201,7 @@ export class ReservationService {
                 checkingTable.reservations[idx].date
               } and ${checkingTable.reservations[idx + 1].date}`,
             );
-            const createdReservation = await this.noValidateCreate(
+            createdReservation = await this.noValidateCreate(
               createReservationData,
             );
             isAvailable = true;
@@ -185,9 +211,15 @@ export class ReservationService {
         }
       }
       if (isAvailable) {
-        return this.tableService.update(createReservationData.tableId, {
-          reservations: reservations as any,
-        });
+        const updated = await this.tableService.update(
+          createReservationData.tableId,
+          {
+            reservations: reservations as any,
+          },
+        );
+        if (updated) {
+          return transformResult(createdReservation);
+        }
       }
       throw new HttpException(
         'Can not make new reservation because this table was busy',
@@ -199,12 +231,40 @@ export class ReservationService {
   }
   async update(id: string, updateReservationData: UpdateReservationDto) {
     try {
-      const updated = await this.reservationModel.updateOne(
-        { _id: id },
-        updateReservationData,
-        { runValidators: true },
-      );
-      return updated;
+      const updated = await this.reservationModel
+        .findByIdAndUpdate(id, updateReservationData, { runValidators: true })
+        .lean();
+      return transformResult(updated);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateByUser(
+    id: string,
+    updateReservationData: UpdateReservationDto,
+    user: any,
+  ) {
+    if (user.role !== Role.USER) {
+      throw new ForbiddenException('This use can not access');
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id');
+    }
+    try {
+      const reserve = await this.reservationModel.findById(id).lean();
+      const currentTime = dayjs();
+      if (
+        currentTime.diff(reserve.date, 'hour') < MILESTONE_CANCEL_RESERVATION
+      ) {
+        throw new BadRequestException(
+          'Can not cancel this reservation due to policy',
+        );
+      }
+
+      const updated = await this.reservationModel
+        .findByIdAndUpdate(id, updateReservationData, { runValidators: true })
+        .lean();
+      return transformResult(updated);
     } catch (error) {
       throw error;
     }
@@ -233,8 +293,22 @@ export class ReservationService {
 
   async countReservations(): Promise<number> {
     try {
-      const reservations = await this.reservationModel.countDocuments();
-      return reservations;
+      let today = new Date();
+      const start = new Date(
+        today.setDate(today.getDate() - today.getDay() - 6),
+      ).getTime();
+      today = new Date();
+      const end = new Date(
+        today.setDate(today.getDate() - today.getDay()),
+      ).getTime();
+      const reservations = await this.findByFilter();
+
+      const filterResevations = reservations.filter(
+        (item) =>
+          new Date(item.date).getTime() >= start &&
+          new Date(item.date).getTime() <= end,
+      );
+      return filterResevations.length;
     } catch (error) {
       throw error;
     }

@@ -18,6 +18,7 @@ import { TableService } from '../tables/table.service';
 import { PaymentModule } from '../payment/payment.module';
 import { PaymentService } from '../payment/payment.service';
 import { User, UserSchema } from '~/module/common/users/user.schema';
+import { TempOrder, TempOrderSchema } from './temp-order.schema';
 
 @Module({
   imports: [
@@ -25,6 +26,10 @@ import { User, UserSchema } from '~/module/common/users/user.schema';
       {
         name: Order.name,
         schema: OrderSchema,
+      },
+      {
+        name: TempOrder.name,
+        schema: TempOrderSchema,
       },
       {
         name: Reservation.name,
