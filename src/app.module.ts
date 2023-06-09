@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import configuration from '~/config/configuration';
 import { AuthModule } from '~/module/common/auth/auth.module';
@@ -31,7 +31,13 @@ import { ReminderModule } from './module/private/reminder/reminder.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
-    JwtModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: () => {
+        return {};
+      },
+      inject: [ConfigService],
+    }),
     AuthModule,
     UsersModule,
     GatewayModule,

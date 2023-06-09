@@ -39,4 +39,9 @@ export class UserEntity {
   @IsNumberString()
   @IsOptional()
   phone: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  refreshToken: string;
 }
