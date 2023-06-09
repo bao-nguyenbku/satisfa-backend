@@ -115,6 +115,14 @@ export class OrdersController {
     return this.orderService.create(createOrderData);
   }
 
+  @Post('createTemp')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @UseFilters(MongoExceptionFilter)
+  async createTempOrder(@Body() createOrderData: CreateOrderDto) {
+    return this.orderService.createTemp(createOrderData);
+  }
+
   @Post('create-guest')
   @UsePipes(ValidationPipe)
   @UseFilters(MongoExceptionFilter)

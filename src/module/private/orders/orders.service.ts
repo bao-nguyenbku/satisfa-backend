@@ -19,12 +19,16 @@ import { PaymentService } from '../payment/payment.service';
 import { PaidOrderDto } from './dto/paid-order.dto';
 import { CreatePaymentDto } from '../payment/dto/create-payment.dto';
 import { PaymentCash } from '../payment/payment.schema';
+import { TempOrder, TempOrderDocument } from './temp-order.schema';
 import { User, UserDocument } from '~/module/common/users/user.schema';
 import * as dayjs from 'dayjs';
+import { PaymentType } from '../payment/payment.schema';
 
 @Injectable({ scope: Scope.REQUEST })
 export class OrdersService {
   constructor(
+    @InjectModel(TempOrder.name)
+    private tempOrderModel: Model<TempOrderDocument>,
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly reservationService: ReservationService,
@@ -186,7 +190,55 @@ export class OrdersService {
       throw error;
     }
   }
-
+  async createTemp(createOrderData: CreateOrderDto) {
+    const { reservationId, type } = createOrderData;
+    try {
+      let existedReservation;
+      if (type === OrderType.DINE_IN) {
+        if (!reservationId) {
+          throw new BadRequestException('You must send a reservation');
+        }
+        existedReservation = await this.reservationService.findById(
+          reservationId,
+        );
+        if (!existedReservation) {
+          throw new NotFoundException('Can not find this reservation');
+        }
+      }
+      if (type === OrderType.TAKEAWAY) {
+        if (!_.has(createOrderData, 'tempCustomer')) {
+          throw new BadRequestException('You must send takeaway information');
+        }
+        const { tempCustomer } = createOrderData;
+        // console.log(createOrderData);
+        // console.log(tempCustomer);
+        // console.log(_.isEmpty(tempCustomer.name));
+        // console.log(_.isNumber(tempCustomer.phone));
+        // console.log(_.isEmpty(tempCustomer.takingTime));
+        if (
+          !_.has(tempCustomer, 'name') ||
+          !_.has(tempCustomer, 'phone') ||
+          !_.has(tempCustomer, 'takingTime')
+        ) {
+          throw new BadRequestException('Takeaway information is required');
+        }
+      }
+      const totalCost = createOrderData.items.reduce(
+        (prev, curr) => prev + curr.qty * curr.price,
+        0,
+      );
+      const created = new this.tempOrderModel({
+        ...createOrderData,
+        totalCost,
+        id: generateOrderId(),
+        reservationId: existedReservation,
+      });
+      const result = (await created.save()).toObject();
+      return transformResult(result);
+    } catch (error) {
+      throw error;
+    }
+  }
   async update(id: string, updateData: UpdateOrderDto) {
     try {
       return this.orderModel.findOneAndUpdate({ id }, updateData);
@@ -194,8 +246,27 @@ export class OrdersService {
       throw error;
     }
   }
+  async updateTemp(id: string, updateData: UpdateOrderDto) {
+    try {
+      return this.tempOrderModel.findOneAndUpdate({ id }, updateData);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteTemp(id: string) {
+    try {
+      return this.tempOrderModel.findOneAndDelete({ id });
+    } catch (error) {
+      throw error;
+    }
+  }
   async paid(id: string, paymentData: PaidOrderDto) {
     try {
+      if (paymentData.type == PaymentType.CREDIT) {
+        console.log('temp');
+        return this.paidTempOrder(id, paymentData);
+      }
+      console.log('main');
       const existedOrder = await this.orderModel.findOne({ id }).lean();
       if (_.isEmpty(existedOrder)) {
         return;
@@ -217,6 +288,44 @@ export class OrdersService {
         paymentStatus: PaymentStatus.PAID,
       });
     } catch (error) {
+      throw error;
+    }
+  }
+  async paidTempOrder(id: string, paymentData: PaidOrderDto) {
+    try {
+      console.log('go here');
+      const existedOrder = await this.tempOrderModel.findOne({ id }).lean();
+      if (_.isEmpty(existedOrder)) {
+        console.log('empty');
+        return;
+      }
+      const insertedOrder = await this.orderModel.insertMany(existedOrder);
+      if (_.isEmpty(insertedOrder)) {
+        return;
+      }
+      console.log('here');
+      const payData: CreatePaymentDto = {
+        type: paymentData.type,
+        info: paymentData.info as PaymentCash,
+        orderId: id,
+      };
+      const createdPayment = await this.paymentService.create(payData);
+
+      if (_.isEmpty(createdPayment)) {
+        return;
+      }
+
+      const deletedOrder = await this.deleteTemp(id);
+      if (_.isEmpty(deletedOrder)) {
+        return;
+      }
+      const { id: paymentId } = createdPayment;
+      return this.update(id, {
+        payment: paymentId,
+        paymentStatus: PaymentStatus.PAID,
+      });
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -265,6 +374,9 @@ export class OrdersService {
               totalSold: {
                 $sum: '$items.qty',
               },
+              price: {
+                $first: '$items.price',
+              },
               // percent: {
               //   $
               // }
@@ -292,6 +404,9 @@ export class OrdersService {
               },
               image: {
                 $first: '$items.images',
+              },
+              price: {
+                $first: '$items.price',
               },
               totalSold: {
                 $sum: '$items.qty',

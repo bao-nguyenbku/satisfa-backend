@@ -59,6 +59,7 @@ export class AuthController {
   @Get('me')
   async whoAmI(@Request() req) {
     const { id } = req.user;
+
     const user = await this.authService.validateUserById(id);
     if (!user) {
       throw new UnauthorizedException();
