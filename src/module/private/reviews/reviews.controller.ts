@@ -9,7 +9,6 @@ import {
   Get,
   Query,
   Param,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { JwtAuthGuard } from '~/module/common/auth/guards/access-auth.guard';

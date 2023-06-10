@@ -31,7 +31,7 @@ export class UsersService {
 
       const user = await this.userModel.findById(id).lean();
       if (user) {
-        const resUser = _.omit(user, ['password', 'role']);
+        const resUser = _.omit(user, ['password']);
         return transformResult(resUser);
       }
       return null;
