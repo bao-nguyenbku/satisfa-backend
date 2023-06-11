@@ -65,7 +65,31 @@ export class UsersService {
     }
   }
   async updatePassword(id: string, updateData: UpdatePasswordDto) {
-    console.log(updateData, this.verifyPassword(id, updateData.password));
+    console.log(updateData);
+    const isMatchedPassword = await this.verifyPassword(
+      id,
+      updateData.password,
+    );
+    if (!isMatchedPassword) {
+      throw new BadRequestException('Your old password is incorrect');
+    }
+    const hashedPassword = await this.hashService.hashPassword(
+      updateData.newPassword,
+    );
+    try {
+      const result = await this.userModel
+        .findByIdAndUpdate(id, {
+          password: hashedPassword,
+        })
+        .select('-password -role')
+        .lean();
+      if (!result) {
+        return;
+      }
+      return transformResult(result);
+    } catch (error) {
+      throw error;
+    }
   }
   async verifyPassword(id: string, password: string) {
     const user = await this.userModel.findById(id).lean();
