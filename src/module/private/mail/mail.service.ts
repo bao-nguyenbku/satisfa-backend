@@ -17,14 +17,13 @@ export class MailService {
   private async setTransport() {
     const OAuth2 = google.auth.OAuth2;
     const oauth2Client = new OAuth2(
-      '67257301507-armbt4ccj2sh94dhli0i0mp73hvhok7u.apps.googleusercontent.com',
-      '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',
+      this.configService.get<string>('googleClientId'),
+      this.configService.get<string>('googleClientSecret'),
       'https://developers.google.com/oauthplayground',
     );
 
     oauth2Client.setCredentials({
-      refresh_token:
-        '1//04ZEVE3yIPvnMCgYIARAAGAQSNwF-L9Ir7jITeW8XDViXD0Qb-uSAF-kgYsCTL6_bL6ZSNpH_iTLCGDpRAcXEoTdEt8KSa2hHSMY',
+      refresh_token: this.configService.get<string>('googleRefreshToken'),
     });
 
     const accessToken: string = await new Promise((resolve, reject) => {
