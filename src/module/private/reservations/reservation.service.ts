@@ -50,8 +50,15 @@ export class ReservationService {
         return transformResult(result);
       }
       const filterObj = {};
-      const { currentDate, currentUser, date, user, checkedIn, fromNow } =
-        filter;
+      const {
+        currentDate,
+        currentUser,
+        date,
+        user,
+        checkedIn,
+        fromNow,
+        status,
+      } = filter;
       if (currentDate) {
         const current = dayjs()
           .set('hour', 0)
@@ -87,6 +94,9 @@ export class ReservationService {
       }
       if (checkedIn) {
         filterObj['status'] = ReservationStatus.CHECKED_IN;
+      }
+      if (status) {
+        filterObj['status'] = status;
       }
       const result = await this.reservationModel
         .find(filterObj)

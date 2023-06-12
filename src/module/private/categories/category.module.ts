@@ -6,6 +6,7 @@ import {
   Category,
   CategorySchema,
 } from '~/module/private/categories/category.schema';
+import { ProductSchema, Product } from '../products/product.schema';
 
 @Module({
   imports: [
@@ -13,6 +14,10 @@ import {
       {
         name: Category.name,
         schema: CategorySchema,
+      },
+      {
+        name: Product.name,
+        schema: ProductSchema,
       },
     ]),
   ],

@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   UseGuards,
   UsePipes,
+  Delete,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -52,5 +53,13 @@ export class CategoryController {
       return this.categoryService.createMany(createCategoryData);
     }
     return this.categoryService.create(createCategoryData);
+  }
+  @Delete(':id')
+  @UseFilters(MongoExceptionFilter)
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async deleteCategory() {
+    return;
   }
 }
