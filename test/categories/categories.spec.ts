@@ -10,10 +10,10 @@ import {
   CategorySchema,
 } from '~/module/private/categories/category.schema';
 import { getModelToken } from '@nestjs/mongoose';
-import { orderDtoStub } from './orders.stub';
+import { categoryStub } from './categories.stub';
 import { OrdersService } from '~/module/private/orders/orders.service';
 
-describe('Orders Services', () => {
+describe('Product Services', () => {
   let service: OrdersService;
   let mongod: MongoMemoryServer;
   let mongoConnection: Connection;

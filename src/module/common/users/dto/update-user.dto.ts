@@ -1,11 +1,14 @@
 import { IsString, IsOptional } from 'class-validator';
-
-export class UpdateUserDto {
+import { UpdateRefreshTokenDto } from './update-refresh-token.dto';
+export class UpdateUserDto extends UpdateRefreshTokenDto {
   @IsString()
   @IsOptional()
-  fullname: string;
+  fullname?: string;
 
-  @IsString()
   @IsOptional()
-  phone: string;
+  @IsString()
+  password?: string;
+
+  @IsOptional()
+  phone?: string;
 }

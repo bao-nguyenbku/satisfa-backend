@@ -38,6 +38,9 @@ export class Reservation {
 
   @Prop({ required: false, default: ReservationStatus.RESERVED })
   status: ReservationStatus;
+
+  @Prop({ required: false, default: false })
+  isRemind: boolean;
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);

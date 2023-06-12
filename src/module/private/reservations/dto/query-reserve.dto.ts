@@ -1,9 +1,11 @@
 import {
   IsBooleanString,
+  IsEnum,
   IsISO8601,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { ReservationStatus } from '../reservation.schema';
 
 export class ReservationFilter {
   @IsISO8601()
@@ -25,4 +27,12 @@ export class ReservationFilter {
   @IsBooleanString()
   @IsOptional()
   checkedIn?: boolean;
+
+  @IsBooleanString()
+  @IsOptional()
+  fromNow?: boolean;
+
+  @IsEnum(ReservationStatus)
+  @IsOptional()
+  status?: ReservationStatus;
 }

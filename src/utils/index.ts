@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export function transformResult(values: any) {
   if (_.isArray(values)) {
-    return values.map((item) => {
+    return values.map((item: any) => {
       if (_.isPlainObject(item) && _.has(item, '_id')) {
         const cloneItem = _.omit(item, ['_id', '__v']);
         for (const subItem in cloneItem) {
@@ -14,7 +14,7 @@ export function transformResult(values: any) {
         return {
           id: item['_id'],
           ...cloneItem,
-        };
+        } as any;
       }
       return item;
     });

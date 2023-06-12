@@ -1,8 +1,10 @@
 // Config Later
 export default () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
-  jwtSecret: process.env.JWT_SECRET_KEY,
-  jwtExpireIn: process.env.JWT_EXPIRES_IN,
+  accessJwtSecret: process.env.ACCESS_JWT_SECRET_KEY,
+  accessJwtExpireIn: process.env.ACCESS_JWT_EXPIRE_IN,
+  refreshJwtSecret: process.env.REFRESH_JWT_SECRET_KEY,
+  refreshJwtExpireIn: process.env.REFRESH_JWT_EXPIRE_IN,
   database: {
     states: {
       0: 'disconnected',
@@ -18,4 +20,9 @@ export default () => ({
   cloudinaryName: process.env.CLOUDINARY_NAME,
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinarySecret: process.env.CLOUDINARY_SECRET,
+  googleApiKey: process.env.GOOGLE_API_KEY,
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  googleEmailUser: process.env.GOOGLE_EMAIL_USER,
+  googleRefreshToken: process.env.GOOGLE_REFRESH_TOKEN,
 });

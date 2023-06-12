@@ -15,7 +15,7 @@ import { PaymentService } from './payment.service';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { Roles } from '~/module/common/auth/roles.decorator';
 import { Role } from '~/constants/role.enum';
-import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '~/module/common/auth/guards/access-auth.guard';
 import { RolesGuard } from '~/module/common/auth/guards/roles.guard';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 
