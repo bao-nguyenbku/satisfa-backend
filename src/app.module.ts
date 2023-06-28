@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import configuration from '~/config/configuration';
 import { AuthModule } from '~/module/common/auth/auth.module';
@@ -19,6 +19,10 @@ import { MomoModule } from './module/common/momo/momo.module';
 import { AnalysisModule } from './module/private/analysis/analysis.module';
 import { ReviewsModule } from './module/private/reviews/reviews.module';
 import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module';
+import { MailModule } from './module/private/mail/mail.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { ReminderModule } from './module/private/reminder/reminder.module';
 
 @Module({
   imports: [
@@ -27,7 +31,13 @@ import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module'
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
-    JwtModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: () => {
+        return {};
+      },
+      inject: [ConfigService],
+    }),
     AuthModule,
     UsersModule,
     GatewayModule,
@@ -44,6 +54,18 @@ import { CloudinaryModule } from './module/private/cloudinary/cloudinary.module'
     MomoModule,
     ReviewsModule,
     CloudinaryModule,
+    MailModule,
+    MailerModule.forRoot({
+      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
+      template: {
+        dir: process.cwd() + '/src/module/private/mail/templates/',
+        adapter: new EjsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
+    ReminderModule,
   ],
   controllers: [AppController],
 })

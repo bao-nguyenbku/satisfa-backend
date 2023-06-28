@@ -188,7 +188,7 @@ export class TableService {
     }
   }
 
-  async update(id: string, updateTableData: UpdateTableDto) {
+  async update(id: string, updateTableData: UpdateTableDto): Promise<any> {
     try {
       const updated = await this.tableModel.updateOne(
         { _id: id },
@@ -204,7 +204,7 @@ export class TableService {
   async updateTableReservations(
     id: string,
     reservations: CreateReservationDto[],
-  ) {
+  ): Promise<any> {
     try {
       const updated = await this.tableModel.updateOne(
         { _id: id },

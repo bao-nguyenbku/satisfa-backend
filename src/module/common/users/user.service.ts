@@ -31,7 +31,7 @@ export class UsersService {
 
       const user = await this.userModel.findById(id).lean();
       if (user) {
-        const resUser = _.omit(user, ['password', 'role']);
+        const resUser = _.omit(user, ['password']);
         return transformResult(resUser);
       }
       return null;
@@ -65,7 +65,6 @@ export class UsersService {
     }
   }
   async updatePassword(id: string, updateData: UpdatePasswordDto) {
-    console.log(updateData);
     const isMatchedPassword = await this.verifyPassword(
       id,
       updateData.password,

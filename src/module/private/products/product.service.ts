@@ -10,6 +10,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import mongoose from 'mongoose';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { transformResult } from '~/utils';
+import { ProductEntity } from './entities/product.entity';
 
 @Injectable()
 export class ProductService {
@@ -17,34 +18,27 @@ export class ProductService {
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
-  async update(id: string, updateData: UpdateProductDto) {
+  async update(id: string, updateData: UpdateProductDto): Promise<any> {
     try {
-      const updated = await this.productModel.updateOne(
-        { _id: id },
-        updateData,
-        { runValidators: true },
-      );
-      return updated;
+      const updated = await this.productModel
+        .findByIdAndUpdate(id, updateData, { runValidators: true })
+        .lean();
+      return transformResult(updated);
     } catch (error) {
       throw error;
     }
   }
-  async findById(id: string) {
+  async findById(id: string): Promise<ProductEntity> {
     try {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        const product = await this.productModel.findById(id).lean();
-        // TODO Handle case product null;
-        if (product) {
-          const { _id, __v, ...rest } = product;
-          return {
-            id: _id,
-            ...rest,
-          };
-        }
-        return null;
-      } else {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new NotAcceptableException('This is not a valid id');
       }
+      const product = await this.productModel.findById(id).lean();
+      // TODO Handle case product null;
+      if (!product) {
+        return null;
+      }
+      return transformResult(product);
     } catch (error) {
       throw error;
     }
@@ -83,11 +77,11 @@ export class ProductService {
       }
       return null;
     } catch (error) {
-      throw new Error(error);
+      throw error;
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<any> {
     try {
       const deleted = await this.productModel.deleteOne({ _id: id }).lean();
       return deleted;

@@ -9,10 +9,9 @@ import {
   Get,
   Query,
   Param,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
-import { JwtAuthGuard } from '~/module/common/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '~/module/common/auth/guards/access-auth.guard';
 import { MongoExceptionFilter } from '~/utils/mongo.filter';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewFilter } from './dto/review-filter.dto';
